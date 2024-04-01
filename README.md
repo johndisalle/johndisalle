@@ -1,4 +1,7 @@
-### Hi, my name is John DiSalle
+### - Hi, my name is John DiSalle
+### - I'm looking to collaborate on any beginner projects
+### - I'm currently learning how to use github
+### - How to reach me => johntdisalle@outlook.com
 👋
 
 <!--
