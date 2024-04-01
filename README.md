@@ -1,8 +1,8 @@
-### - Hi, my name is John DiSalle
-### - I'm looking to collaborate on any beginner projects
-### - I'm currently learning how to use github
-### - How to reach me => johntdisalle@outlook.com
-👋
+### - 👋 Hi, my name is John DiSalle
+### - 🤔 I'm looking to collaborate on any beginner projects
+### - 🌱 I'm currently learning how to use github
+### - 📫 How to reach me => johntdisalle@outlook.com
+
 
 <!--
 **johndisalle/johndisalle** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
