@@ -1,4 +1,5 @@
-### Hi there 👋
+### Hi, my name is John DiSalle
+👋
 
 <!--
 **johndisalle/johndisalle** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
