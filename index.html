@@ -1025,8 +1025,13 @@ function renderClients() {
         </div>
       </div>
       <div class="client-meta">${esc(c.contractDetails || 'No contract details')}</div>
+      ${c.region ? `<div style="font-size:0.8rem;color:var(--gray-500);margin-bottom:4px"><strong>Region:</strong> ${esc(c.region)}</div>` : ''}
       ${c.contactEmail ? `<div style="font-size:0.8rem;color:var(--gray-500)">${esc(c.contactEmail)}</div>` : ''}
       ${c.contactPhone ? `<div style="font-size:0.8rem;color:var(--gray-500)">${esc(c.contactPhone)}</div>` : ''}
+      ${c.primaryTech || c.secondaryTech ? `<div style="font-size:0.8rem;color:var(--gray-500);margin-top:8px;padding-top:8px;border-top:1px solid var(--gray-100)">
+        ${c.primaryTech ? `<div><strong>Primary:</strong> ${esc(c.primaryTech)}</div>` : ''}
+        ${c.secondaryTech ? `<div><strong>Secondary:</strong> ${esc(c.secondaryTech)}</div>` : ''}
+      </div>` : ''}
       <div class="client-stats">
         <span>${obCount} obligation${obCount !== 1 ? 's' : ''}</span>
         <span>${comp.pct}% compliant this month</span>
@@ -1172,11 +1177,21 @@ function openModal(type, editId) {
   if (type === 'client') {
     const c = editId ? DATA.clients.find(x => x.id === editId) : null;
     title.textContent = c ? 'Edit Client' : 'Add Client';
+    const techOptions = DATA.technicians.map(t => `<option value="${esc(t)}" ${false}>${esc(t)}</option>`).join('');
     body.innerHTML = `
       <div class="form-group"><label>Client Name *</label><input class="form-control" id="f-client-name" value="${esc(c?.name || '')}" required></div>
       <div class="form-group"><label>Contract Details</label><textarea class="form-control" id="f-client-contract">${esc(c?.contractDetails || '')}</textarea></div>
       <div class="form-group"><label>Contact Email</label><input class="form-control" id="f-client-email" type="email" value="${esc(c?.contactEmail || '')}"></div>
       <div class="form-group"><label>Contact Phone</label><input class="form-control" id="f-client-phone" type="tel" value="${esc(c?.contactPhone || '')}"></div>
+      <div class="form-group"><label>Region</label><input class="form-control" id="f-client-region" value="${esc(c?.region || '')}" placeholder="e.g. Northeast, West Coast..."></div>
+      <div class="form-group"><label>Primary Technician</label><select class="form-control" id="f-client-primary-tech">
+        <option value="">-- Select --</option>
+        ${DATA.technicians.map(t => `<option value="${esc(t)}" ${c?.primaryTech === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}
+      </select></div>
+      <div class="form-group"><label>Secondary Technician</label><select class="form-control" id="f-client-secondary-tech">
+        <option value="">-- Select --</option>
+        ${DATA.technicians.map(t => `<option value="${esc(t)}" ${c?.secondaryTech === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}
+      </select></div>
     `;
     footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveClient('${editId || ''}')">Save</button>`;
   } else if (type === 'obligation') {
@@ -1332,7 +1347,10 @@ function saveClient(editId) {
     name,
     contractDetails: document.getElementById('f-client-contract').value.trim(),
     contactEmail: document.getElementById('f-client-email').value.trim(),
-    contactPhone: document.getElementById('f-client-phone').value.trim()
+    contactPhone: document.getElementById('f-client-phone').value.trim(),
+    region: document.getElementById('f-client-region').value.trim(),
+    primaryTech: document.getElementById('f-client-primary-tech').value,
+    secondaryTech: document.getElementById('f-client-secondary-tech').value
   };
   if (editId) { updateClient(editId, data); showToast('Client updated'); }
   else { addClient(data); showToast('Client added'); }
@@ -1480,10 +1498,15 @@ function loadSampleData() {
   const now = new Date();
   const threeMonthsAgo = new Date(now); threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-  const c1 = addClient({ name: 'Martin Dental', contractDetails: '12-month contract. Half day onsite monthly. Remote support included.', contactEmail: 'office@martindental.com', contactPhone: '555-0101' });
-  const c2 = addClient({ name: 'Summit Law Group', contractDetails: 'Monthly retainer. Weekly backup verification. Quarterly security review.', contactEmail: 'it@summitlaw.com', contactPhone: '555-0202' });
-  const c3 = addClient({ name: 'Riverside Medical', contractDetails: 'Full managed services. Weekly onsite. HIPAA compliance required.', contactEmail: 'admin@riversidemedical.com', contactPhone: '555-0303' });
-  const c4 = addClient({ name: 'Pacific Manufacturing', contractDetails: '6-month contract. Monthly patching. Bi-weekly monitoring review.', contactEmail: 'ops@pacificmfg.com', contactPhone: '555-0404' });
+  // Add sample technicians first so they're available for client assignment
+  ['John D.', 'Sarah M.', 'Mike R.'].forEach(t => {
+    if (!DATA.technicians.includes(t)) DATA.technicians.push(t);
+  });
+
+  const c1 = addClient({ name: 'Martin Dental', contractDetails: '12-month contract. Half day onsite monthly. Remote support included.', contactEmail: 'office@martindental.com', contactPhone: '555-0101', region: 'Downtown', primaryTech: 'John D.', secondaryTech: 'Sarah M.' });
+  const c2 = addClient({ name: 'Summit Law Group', contractDetails: 'Monthly retainer. Weekly backup verification. Quarterly security review.', contactEmail: 'it@summitlaw.com', contactPhone: '555-0202', region: 'Midtown', primaryTech: 'Sarah M.', secondaryTech: 'Mike R.' });
+  const c3 = addClient({ name: 'Riverside Medical', contractDetails: 'Full managed services. Weekly onsite. HIPAA compliance required.', contactEmail: 'admin@riversidemedical.com', contactPhone: '555-0303', region: 'East Side', primaryTech: 'Mike R.', secondaryTech: 'John D.' });
+  const c4 = addClient({ name: 'Pacific Manufacturing', contractDetails: '6-month contract. Monthly patching. Bi-weekly monitoring review.', contactEmail: 'ops@pacificmfg.com', contactPhone: '555-0404', region: 'Industrial Park', primaryTech: 'John D.', secondaryTech: 'Mike R.' });
 
   // Martin Dental obligations
   const o1 = addObligation({ clientId: c1.id, title: 'Onsite Visit - Half Day', description: 'Monthly onsite maintenance and user support', recurrence: 'monthly', dayOfMonth: 15, dayOfWeek: null, monthOfYear: null });
@@ -1504,11 +1527,6 @@ function loadSampleData() {
   // One-time obligation example
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 10);
   addObligation({ clientId: c2.id, title: 'Annual Contract Renewal', description: 'Review and renew managed services contract', recurrence: 'once', specificDate: dateStr(nextMonth), dayOfWeek: null, dayOfMonth: null, monthOfYear: null });
-
-  // Add sample technicians
-  ['John D.', 'Sarah M.', 'Mike R.'].forEach(t => {
-    if (!DATA.technicians.includes(t)) DATA.technicians.push(t);
-  });
 
   // Add some sample completions for Martin Dental onsite (last 2 months)
   const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 15);
