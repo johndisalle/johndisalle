@@ -37,14 +37,105 @@
   --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
   --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --body-bg: var(--gray-100);
+  --card-bg: #fff;
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-600);
+  --text-muted: var(--gray-400);
+  --border-color: var(--gray-200);
+  --input-bg: #fff;
+  --input-border: var(--gray-300);
+  --table-stripe: var(--gray-50);
+}
+
+/* ========== DARK MODE ========== */
+[data-theme="dark"] {
+  --body-bg: #0f172a;
+  --card-bg: #1e293b;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-color: #334155;
+  --input-bg: #1e293b;
+  --input-border: #475569;
+  --table-stripe: #1a2332;
+  --gray-50: #1a2332;
+  --gray-100: #1e293b;
+  --gray-200: #334155;
+  --gray-300: #475569;
+  --gray-700: #cbd5e1;
+  --gray-800: #e2e8f0;
+  --gray-900: #f1f5f9;
+  --primary-bg: #1e3a5f;
+  --danger-bg: #3b1111;
+  --warning-bg: #3b2e0f;
+  --success-bg: #0f2e1a;
 }
 
 body {
   font-family: var(--font);
-  background: var(--gray-100);
-  color: var(--gray-900);
+  background: var(--body-bg);
+  color: var(--text-primary);
   line-height: 1.5;
   min-height: 100vh;
+}
+
+[data-theme="dark"] .navbar {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+}
+
+[data-theme="dark"] .modal {
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-control {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .panel {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .client-card {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] table thead th {
+  background: var(--gray-50);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] table tbody td {
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] table tbody tr:hover {
+  background: var(--gray-50);
+}
+
+[data-theme="dark"] .stat-card {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .day-cell {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .btn-outline {
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .calendar-grid .day-header {
+  color: var(--text-secondary);
 }
 
 /* ========== NAV ========== */
@@ -528,6 +619,235 @@ tbody tr { transition: background 0.15s ease; }
 
 .client-card { animation: fadeInUp 0.35s ease-out both; }
 
+/* ========== GLOBAL SEARCH ========== */
+.global-search {
+  position: relative;
+  margin-left: auto;
+  margin-right: 16px;
+}
+.global-search input {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px 6px 34px;
+  color: white;
+  font-size: 0.85rem;
+  width: 220px;
+  outline: none;
+  transition: all 0.2s;
+}
+.global-search input::placeholder { color: rgba(255,255,255,0.6); }
+.global-search input:focus { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.4); width: 300px; }
+.global-search .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+  pointer-events: none;
+}
+.search-results-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 200;
+  margin-top: 4px;
+  color: var(--text-primary);
+}
+.search-results-dropdown .search-result-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.85rem;
+}
+.search-results-dropdown .search-result-item:hover { background: var(--primary-bg); }
+.search-results-dropdown .search-result-item:last-child { border-bottom: none; }
+.search-results-dropdown .search-result-type {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--primary);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.search-results-dropdown .search-no-results {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ========== DARK MODE TOGGLE ========== */
+.dark-mode-toggle {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  border-radius: 20px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.dark-mode-toggle:hover { background: rgba(255,255,255,0.15); }
+
+/* ========== NOTIFICATION BELL ========== */
+.notification-bell {
+  position: relative;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-right: 8px;
+}
+.notification-bell .bell-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--danger);
+  color: white;
+  font-size: 0.6rem;
+  padding: 1px 4px;
+  border-radius: 10px;
+  min-width: 14px;
+  text-align: center;
+}
+
+/* ========== DASHBOARD FILTERS ========== */
+.dashboard-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.dashboard-filters select {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+/* ========== WORKLOAD VIEW ========== */
+.workload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+.workload-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.workload-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.workload-card-header h3 {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+.workload-stat {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.workload-stat-item {
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  flex: 1;
+}
+.workload-stat-item .ws-val {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.workload-stat-item .ws-lbl {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.workload-client-list {
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+.workload-client-list div {
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+}
+.workload-client-list div:last-child { border-bottom: none; }
+
+/* ========== ACTIVITY LOG ========== */
+.activity-log {
+  max-height: 300px;
+  overflow-y: auto;
+}
+.activity-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.85rem;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.activity-dot.note { background: var(--primary); }
+.activity-dot.completion { background: var(--success); }
+.activity-dot.system { background: var(--gray-400); }
+
+/* ========== PRINT / PDF ========== */
+@media print {
+  .navbar, .toast-container, .btn, .global-search, .dark-mode-toggle, .notification-bell, .dashboard-filters, .filter-bar { display: none !important; }
+  .container { max-width: 100%; padding: 0; }
+  .view { display: none !important; }
+  #print-report { display: block !important; }
+  body { background: white; color: black; }
+  .panel { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+}
+
+#print-report { display: none; }
+#print-report .report-header {
+  text-align: center;
+  padding: 20px;
+  border-bottom: 2px solid var(--primary);
+  margin-bottom: 20px;
+}
+#print-report .report-header h1 { font-size: 1.5rem; color: var(--primary); }
+#print-report .report-header p { color: var(--text-secondary); }
+#print-report .report-section { margin-bottom: 24px; }
+#print-report .report-section h3 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-color);
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
   .navbar { padding: 0 12px; }
@@ -538,6 +858,8 @@ tbody tr { transition: background 0.15s ease; }
   .calendar-grid .day-cell { min-height: 60px; padding: 4px; }
   .day-dot { font-size: 0.6rem; }
   .client-grid { grid-template-columns: 1fr; }
+  .global-search { display: none; }
+  .workload-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -573,9 +895,22 @@ tbody tr { transition: background 0.15s ease; }
     <li><button class="nav-tab active" data-view="dashboard">Dashboard<span id="overdue-badge" class="nav-badge" style="display:none"></span></button></li>
     <li><button class="nav-tab" data-view="clients">Clients</button></li>
     <li><button class="nav-tab" data-view="obligations">Obligations</button></li>
+    <li><button class="nav-tab" data-view="workload">Workload</button></li>
     <li><button class="nav-tab" data-view="calendar">Calendar</button></li>
     <li><button class="nav-tab" data-view="settings">Settings</button></li>
   </ul>
+  <div class="global-search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" id="global-search-input" placeholder="Search everything..." autocomplete="off">
+    <div class="search-results-dropdown" id="search-dropdown" style="display:none"></div>
+  </div>
+  <button class="notification-bell" id="notification-bell" onclick="toggleNotifications()" title="Notifications">
+    &#128276;
+    <span class="bell-badge" id="bell-badge" style="display:none">0</span>
+  </button>
+  <button class="dark-mode-toggle" id="dark-mode-btn" onclick="toggleDarkMode()">
+    <span id="dark-mode-icon">&#9790;</span> <span id="dark-mode-label">Dark</span>
+  </button>
 </nav>
 
 <!-- TOAST CONTAINER -->
@@ -585,6 +920,14 @@ tbody tr { transition: background 0.15s ease; }
 
   <!-- ========== DASHBOARD ========== -->
   <div id="view-dashboard" class="view active">
+    <div class="dashboard-filters">
+      <select id="dash-filter-client" onchange="renderDashboard()">
+        <option value="">All Clients</option>
+      </select>
+      <select id="dash-filter-tech" onchange="renderDashboard()">
+        <option value="">All Technicians</option>
+      </select>
+    </div>
     <div class="stats-grid" id="dashboard-stats"></div>
     <div class="panel" id="panel-overdue">
       <div class="panel-header"><h2>Overdue Obligations</h2></div>
@@ -646,6 +989,15 @@ tbody tr { transition: background 0.15s ease; }
     <div class="calendar-grid" id="calendar-grid"></div>
   </div>
 
+  <!-- ========== WORKLOAD ========== -->
+  <div id="view-workload" class="view">
+    <div class="panel-header" style="background:none; padding: 0 0 16px 0;">
+      <h2>Technician Workload</h2>
+    </div>
+    <div class="workload-grid" id="workload-grid"></div>
+    <div id="workload-empty"></div>
+  </div>
+
   <!-- ========== SETTINGS ========== -->
   <div id="view-settings" class="view">
     <div class="panel">
@@ -674,9 +1026,36 @@ tbody tr { transition: background 0.15s ease; }
         </div>
       </div>
     </div>
+    <div class="panel">
+      <div class="panel-header"><h2>Notifications</h2></div>
+      <div class="panel-body padded">
+        <p style="font-size:0.85rem;color:var(--gray-500);margin-bottom:12px">Enable browser notifications for upcoming and overdue obligations.</p>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary" id="enable-notif-btn" onclick="requestNotificationPermission()">Enable Browser Notifications</button>
+          <span id="notif-status" style="font-size:0.85rem;color:var(--gray-500)"></span>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h2>Multi-User Support</h2></div>
+      <div class="panel-body padded">
+        <div style="background:var(--primary-bg);border:1px solid var(--primary-light);border-radius:var(--radius);padding:16px;font-size:0.9rem">
+          <strong>Coming Soon</strong> &mdash; Multi-user support with role-based access (Admin, Technician, Viewer) is planned for a future release. This will include:
+          <ul style="margin:8px 0 0 20px;color:var(--text-secondary)">
+            <li>User authentication and login</li>
+            <li>Role-based permissions</li>
+            <li>Per-user activity tracking</li>
+            <li>Team dashboards</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
+
+<!-- ========== PRINT REPORT ========== -->
+<div id="print-report"></div>
 
 <!-- ========== MODAL ========== -->
 <div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
@@ -701,7 +1080,7 @@ function generateId() {
 }
 
 function getDefaultData() {
-  return { clients: [], obligations: [], completions: [], technicians: [] };
+  return { clients: [], obligations: [], completions: [], technicians: [], activityLog: [] };
 }
 
 function loadData() {
@@ -944,20 +1323,54 @@ function switchView(view) {
   if (view === 'dashboard') renderDashboard();
   else if (view === 'clients') renderClients();
   else if (view === 'obligations') renderObligations();
+  else if (view === 'workload') renderWorkload();
   else if (view === 'calendar') renderCalendar();
   else if (view === 'settings') renderSettings();
 }
 
 // --- DASHBOARD ---
 function renderDashboard() {
-  const overdue = getAllOverdue();
-  const upcoming = getUpcomingThisWeek();
-  const recent = getRecentCompletions();
+  // Populate dashboard filter dropdowns
+  const dashClientFilter = document.getElementById('dash-filter-client');
+  const dashTechFilter = document.getElementById('dash-filter-tech');
+  const curClient = dashClientFilter.value;
+  const curTech = dashTechFilter.value;
+  dashClientFilter.innerHTML = '<option value="">All Clients</option>' + DATA.clients.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  dashClientFilter.value = curClient;
+  dashTechFilter.innerHTML = '<option value="">All Technicians</option>' + DATA.technicians.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+  dashTechFilter.value = curTech;
+
+  let overdue = getAllOverdue();
+  let upcoming = getUpcomingThisWeek();
+  let recent = getRecentCompletions();
+
+  // Apply filters
+  if (curClient) {
+    overdue = overdue.filter(r => r.obligation.clientId === curClient);
+    upcoming = upcoming.filter(r => r.obligation.clientId === curClient);
+    recent = recent.filter(r => r.obligation && r.obligation.clientId === curClient);
+  }
+  if (curTech) {
+    const clientsForTech = DATA.clients.filter(c => c.primaryTech === curTech || c.secondaryTech === curTech).map(c => c.id);
+    overdue = overdue.filter(r => clientsForTech.includes(r.obligation.clientId));
+    upcoming = upcoming.filter(r => clientsForTech.includes(r.obligation.clientId));
+    recent = recent.filter(r => r.obligation && clientsForTech.includes(r.obligation.clientId));
+  }
 
   // Completed this month
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const completedThisMonth = DATA.completions.filter(c => new Date(c.completedAt) >= monthStart).length;
+  let completedThisMonth = DATA.completions.filter(c => new Date(c.completedAt) >= monthStart);
+  if (curClient) {
+    const obIds = DATA.obligations.filter(o => o.clientId === curClient).map(o => o.id);
+    completedThisMonth = completedThisMonth.filter(c => obIds.includes(c.obligationId));
+  }
+  if (curTech) {
+    const clientsForTech = DATA.clients.filter(c => c.primaryTech === curTech || c.secondaryTech === curTech).map(c => c.id);
+    const obIds = DATA.obligations.filter(o => clientsForTech.includes(o.clientId)).map(o => o.id);
+    completedThisMonth = completedThisMonth.filter(c => obIds.includes(c.obligationId));
+  }
+  completedThisMonth = completedThisMonth.length;
 
   // Badge
   const badge = document.getElementById('overdue-badge');
@@ -1020,6 +1433,8 @@ function renderClients() {
       <div class="client-card-header">
         <h3>${esc(c.name)}</h3>
         <div>
+          <button class="btn-icon" onclick="openClientActivity('${c.id}')" title="Activity Log">&#128221;</button>
+          <button class="btn-icon" onclick="generateClientReport('${c.id}')" title="Print Report">&#128424;</button>
           <button class="btn-icon" onclick="openModal('client','${c.id}')" title="Edit">&#9998;</button>
           <button class="btn-icon danger" onclick="confirmDeleteClient('${c.id}')" title="Delete">&#128465;</button>
         </div>
@@ -1582,6 +1997,485 @@ function refreshCurrentView() {
 }
 
 // ========================================================================
+// WORKLOAD VIEW
+// ========================================================================
+function renderWorkload() {
+  const grid = document.getElementById('workload-grid');
+  const empty = document.getElementById('workload-empty');
+
+  if (DATA.technicians.length === 0) {
+    grid.innerHTML = '';
+    empty.innerHTML = '<div class="empty-state" style="padding:60px 20px"><div class="empty-icon">&#128101;</div><p>No technicians added yet. Add technicians in Settings to see workload.</p></div>';
+    return;
+  }
+  empty.innerHTML = '';
+
+  const today = todayStr();
+  const weekEnd = new Date();
+  weekEnd.setDate(weekEnd.getDate() + 7);
+  const monthEnd = new Date();
+  monthEnd.setDate(monthEnd.getDate() + 30);
+
+  grid.innerHTML = DATA.technicians.map(tech => {
+    // Find clients assigned to this tech
+    const assignedClients = DATA.clients.filter(c => c.primaryTech === tech || c.secondaryTech === tech);
+    const primaryClients = DATA.clients.filter(c => c.primaryTech === tech);
+    const secondaryClients = DATA.clients.filter(c => c.secondaryTech === tech);
+
+    // Count obligations for assigned clients
+    const clientIds = assignedClients.map(c => c.id);
+    const techObligations = DATA.obligations.filter(o => clientIds.includes(o.clientId));
+
+    // Count overdue
+    let overdueCount = 0;
+    let dueThisWeek = 0;
+    const sixMonthsAgo = new Date(); sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+
+    techObligations.forEach(ob => {
+      if (ob.recurrence === 'once' && ob.specificDate) {
+        if (ob.specificDate < today && !getCompletion(ob.id, ob.specificDate)) overdueCount++;
+      } else {
+        const instances = getInstancesInRange(ob, sixMonthsAgo, yesterday);
+        instances.forEach(d => { if (d < today && !getCompletion(ob.id, d)) overdueCount++; });
+      }
+      const weekInstances = getInstancesInRange(ob, new Date(), weekEnd);
+      weekInstances.forEach(d => { if (!getCompletion(ob.id, d)) dueThisWeek++; });
+    });
+
+    // Completions by this tech this month
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const completedByTech = DATA.completions.filter(c => c.completedBy === tech && new Date(c.completedAt) >= monthStart).length;
+
+    return `<div class="workload-card">
+      <div class="workload-card-header">
+        <h3>${esc(tech)}</h3>
+        <span class="badge badge-gray">${assignedClients.length} client${assignedClients.length !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="workload-stat">
+        <div class="workload-stat-item" style="background:var(--danger-bg)">
+          <div class="ws-val" style="color:var(--danger)">${overdueCount}</div>
+          <div class="ws-lbl">Overdue</div>
+        </div>
+        <div class="workload-stat-item" style="background:var(--warning-bg)">
+          <div class="ws-val" style="color:var(--warning)">${dueThisWeek}</div>
+          <div class="ws-lbl">Due This Week</div>
+        </div>
+        <div class="workload-stat-item" style="background:var(--success-bg)">
+          <div class="ws-val" style="color:var(--success)">${completedByTech}</div>
+          <div class="ws-lbl">Done This Mo.</div>
+        </div>
+      </div>
+      <div class="workload-client-list">
+        ${assignedClients.map(c => {
+          const role = c.primaryTech === tech ? 'Primary' : 'Secondary';
+          const comp = getClientCompliance(c.id);
+          return `<div><span>${esc(c.name)} <span class="badge badge-gray" style="font-size:0.65rem">${role}</span></span><span>${comp.pct}%</span></div>`;
+        }).join('') || '<div style="color:var(--text-muted);text-align:center;padding:8px">No clients assigned</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ========================================================================
+// GLOBAL SEARCH
+// ========================================================================
+function initGlobalSearch() {
+  const input = document.getElementById('global-search-input');
+  const dropdown = document.getElementById('search-dropdown');
+  let debounceTimer;
+
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      const q = input.value.trim().toLowerCase();
+      if (q.length < 2) { dropdown.style.display = 'none'; return; }
+      const results = searchEverything(q);
+      if (results.length === 0) {
+        dropdown.innerHTML = '<div class="search-no-results">No results found</div>';
+      } else {
+        dropdown.innerHTML = results.slice(0, 15).map(r => `<div class="search-result-item" onclick="handleSearchClick('${r.type}','${r.id}','${r.extra || ''}')">
+          <div class="search-result-type">${r.type}</div>
+          <div><strong>${esc(r.title)}</strong></div>
+          <div style="font-size:0.75rem;color:var(--text-muted)">${esc(r.subtitle)}</div>
+        </div>`).join('');
+      }
+      dropdown.style.display = 'block';
+    }, 200);
+  });
+
+  input.addEventListener('blur', () => {
+    setTimeout(() => { dropdown.style.display = 'none'; }, 200);
+  });
+
+  input.addEventListener('focus', () => {
+    if (input.value.trim().length >= 2) input.dispatchEvent(new Event('input'));
+  });
+}
+
+function searchEverything(query) {
+  const results = [];
+
+  // Search clients
+  DATA.clients.forEach(c => {
+    const fields = [c.name, c.contractDetails, c.contactEmail, c.contactPhone, c.region, c.primaryTech, c.secondaryTech].filter(Boolean).join(' ').toLowerCase();
+    if (fields.includes(query)) {
+      results.push({ type: 'Client', id: c.id, title: c.name, subtitle: [c.region, c.contactEmail].filter(Boolean).join(' - '), extra: '' });
+    }
+  });
+
+  // Search obligations
+  DATA.obligations.forEach(o => {
+    const client = DATA.clients.find(c => c.id === o.clientId);
+    const fields = [o.title, o.description, client?.name].filter(Boolean).join(' ').toLowerCase();
+    if (fields.includes(query)) {
+      results.push({ type: 'Obligation', id: o.id, title: o.title, subtitle: (client?.name || 'Unknown') + ' - ' + capitalize(o.recurrence), extra: '' });
+    }
+  });
+
+  // Search completions
+  DATA.completions.forEach(comp => {
+    const ob = DATA.obligations.find(o => o.id === comp.obligationId);
+    const client = ob ? DATA.clients.find(c => c.id === ob.clientId) : null;
+    const fields = [comp.completedBy, comp.notes, ob?.title, client?.name].filter(Boolean).join(' ').toLowerCase();
+    if (fields.includes(query)) {
+      results.push({ type: 'Completion', id: comp.id, title: (ob?.title || 'Unknown') + ' - ' + formatDate(comp.dueDate), subtitle: 'By ' + comp.completedBy + (client ? ' for ' + client.name : ''), extra: '' });
+    }
+  });
+
+  // Search technicians
+  DATA.technicians.forEach(t => {
+    if (t.toLowerCase().includes(query)) {
+      results.push({ type: 'Technician', id: t, title: t, subtitle: DATA.clients.filter(c => c.primaryTech === t || c.secondaryTech === t).length + ' clients assigned', extra: '' });
+    }
+  });
+
+  return results;
+}
+
+function handleSearchClick(type, id) {
+  document.getElementById('global-search-input').value = '';
+  document.getElementById('search-dropdown').style.display = 'none';
+
+  if (type === 'Client') {
+    switchView('clients');
+  } else if (type === 'Obligation') {
+    switchView('obligations');
+  } else if (type === 'Completion') {
+    switchView('dashboard');
+  } else if (type === 'Technician') {
+    switchView('workload');
+  }
+}
+
+// ========================================================================
+// DARK MODE
+// ========================================================================
+function toggleDarkMode() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  localStorage.setItem('msp_theme', isDark ? 'light' : 'dark');
+  updateDarkModeButton();
+}
+
+function updateDarkModeButton() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.getElementById('dark-mode-icon').innerHTML = isDark ? '&#9788;' : '&#9790;';
+  document.getElementById('dark-mode-label').textContent = isDark ? 'Light' : 'Dark';
+}
+
+function loadTheme() {
+  const saved = localStorage.getItem('msp_theme');
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+  updateDarkModeButton();
+}
+
+// ========================================================================
+// BROWSER NOTIFICATIONS
+// ========================================================================
+function requestNotificationPermission() {
+  if (!('Notification' in window)) {
+    showToast('Browser notifications not supported', 'danger');
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    updateNotificationStatus();
+    if (perm === 'granted') {
+      showToast('Notifications enabled!', 'success');
+      checkAndNotify();
+    } else {
+      showToast('Notification permission denied', 'danger');
+    }
+  });
+}
+
+function updateNotificationStatus() {
+  const status = document.getElementById('notif-status');
+  const btn = document.getElementById('enable-notif-btn');
+  if (!('Notification' in window)) {
+    status.textContent = 'Not supported by your browser';
+    btn.disabled = true;
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    status.textContent = 'Notifications are enabled';
+    btn.textContent = 'Notifications Enabled';
+    btn.disabled = true;
+    btn.classList.remove('btn-primary');
+    btn.classList.add('btn-outline');
+  } else if (Notification.permission === 'denied') {
+    status.textContent = 'Blocked - enable in browser settings';
+    btn.disabled = true;
+  }
+}
+
+function checkAndNotify() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+  const overdue = getAllOverdue();
+  const upcoming = getUpcomingThisWeek();
+
+  // Update bell badge
+  const totalAlerts = overdue.length + upcoming.filter(u => u.daysUntil <= 1).length;
+  const badge = document.getElementById('bell-badge');
+  if (totalAlerts > 0) {
+    badge.style.display = 'inline';
+    badge.textContent = totalAlerts;
+  } else {
+    badge.style.display = 'none';
+  }
+
+  // Check last notification time to avoid spamming
+  const lastNotif = localStorage.getItem('msp_last_notification');
+  const now = Date.now();
+  if (lastNotif && (now - parseInt(lastNotif)) < 3600000) return; // Max once per hour
+
+  if (overdue.length > 0) {
+    new Notification('MSP Compliance Tracker', {
+      body: `You have ${overdue.length} overdue obligation${overdue.length !== 1 ? 's' : ''} that need attention.`,
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⚠️</text></svg>'
+    });
+    localStorage.setItem('msp_last_notification', now.toString());
+  }
+
+  const urgentUpcoming = upcoming.filter(u => u.daysUntil === 0);
+  if (urgentUpcoming.length > 0 && !lastNotif) {
+    new Notification('MSP Compliance Tracker', {
+      body: `${urgentUpcoming.length} obligation${urgentUpcoming.length !== 1 ? 's' : ''} due today!`,
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📋</text></svg>'
+    });
+    localStorage.setItem('msp_last_notification', now.toString());
+  }
+}
+
+function toggleNotifications() {
+  if (!('Notification' in window)) {
+    showToast('Browser notifications not supported', 'danger');
+    return;
+  }
+  if (Notification.permission === 'default') {
+    requestNotificationPermission();
+  } else if (Notification.permission === 'granted') {
+    const overdue = getAllOverdue();
+    const upcoming = getUpcomingThisWeek().filter(u => u.daysUntil <= 1);
+    if (overdue.length === 0 && upcoming.length === 0) {
+      showToast('No pending alerts - all clear!');
+    } else {
+      showToast(`${overdue.length} overdue, ${upcoming.length} due soon`);
+    }
+  } else {
+    showToast('Notifications blocked - check browser settings', 'danger');
+  }
+}
+
+// ========================================================================
+// CLIENT ACTIVITY LOG
+// ========================================================================
+function addActivityNote(clientId, note, type) {
+  if (!DATA.activityLog) DATA.activityLog = [];
+  DATA.activityLog.push({
+    id: generateId(),
+    clientId,
+    note,
+    type: type || 'note',
+    timestamp: new Date().toISOString()
+  });
+  saveData(DATA);
+}
+
+function openClientActivity(clientId) {
+  const client = DATA.clients.find(c => c.id === clientId);
+  if (!client) return;
+
+  const overlay = document.getElementById('modal-overlay');
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  const footer = document.getElementById('modal-footer');
+
+  title.textContent = 'Activity Log - ' + client.name;
+
+  // Gather all activity for this client
+  const activities = [];
+
+  // Manual notes
+  (DATA.activityLog || []).filter(a => a.clientId === clientId).forEach(a => {
+    activities.push({ timestamp: a.timestamp, type: a.type || 'note', text: a.note, id: a.id });
+  });
+
+  // Completions as activities
+  const clientObs = DATA.obligations.filter(o => o.clientId === clientId);
+  clientObs.forEach(ob => {
+    DATA.completions.filter(c => c.obligationId === ob.id).forEach(comp => {
+      activities.push({
+        timestamp: comp.completedAt,
+        type: 'completion',
+        text: `${ob.title} completed by ${comp.completedBy}` + (comp.notes ? ': ' + comp.notes : ''),
+        id: comp.id
+      });
+    });
+  });
+
+  activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  body.innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <input class="form-control" id="f-activity-note" placeholder="Add a note..." style="flex:1">
+      <button class="btn btn-primary" onclick="saveActivityNote('${clientId}')">Add</button>
+    </div>
+    <div class="activity-log">
+      ${activities.length === 0 ? '<div style="text-align:center;color:var(--text-muted);padding:20px">No activity yet</div>' :
+        activities.map(a => `<div class="activity-item">
+          <div class="activity-dot ${a.type}"></div>
+          <div style="flex:1">
+            <div>${esc(a.text)}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted)">${formatDateTime(a.timestamp)}</div>
+          </div>
+          ${a.type === 'note' ? `<button class="btn-icon danger" onclick="deleteActivityNote('${a.id}','${clientId}')" title="Delete" style="font-size:0.75rem">&#10005;</button>` : ''}
+        </div>`).join('')
+      }
+    </div>
+  `;
+  footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Close</button>`;
+  overlay.classList.add('open');
+  setTimeout(() => document.getElementById('f-activity-note')?.focus(), 100);
+}
+
+function saveActivityNote(clientId) {
+  const input = document.getElementById('f-activity-note');
+  const note = input.value.trim();
+  if (!note) return;
+  addActivityNote(clientId, note, 'note');
+  openClientActivity(clientId); // Refresh
+  showToast('Note added');
+}
+
+function deleteActivityNote(noteId, clientId) {
+  DATA.activityLog = (DATA.activityLog || []).filter(a => a.id !== noteId);
+  saveData(DATA);
+  openClientActivity(clientId); // Refresh
+}
+
+// ========================================================================
+// PRINT / PDF REPORT
+// ========================================================================
+function generateClientReport(clientId) {
+  const client = DATA.clients.find(c => c.id === clientId);
+  if (!client) return;
+
+  const comp = getClientCompliance(clientId);
+  const obs = DATA.obligations.filter(o => o.clientId === clientId);
+  const today = todayStr();
+  const now = new Date();
+
+  // Get recent completions for this client
+  const clientCompletions = [];
+  obs.forEach(ob => {
+    DATA.completions.filter(c => c.obligationId === ob.id).forEach(c => {
+      clientCompletions.push({ ...c, obligationTitle: ob.title });
+    });
+  });
+  clientCompletions.sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+
+  // Get overdue items
+  const overdueItems = [];
+  obs.forEach(ob => {
+    if (ob.recurrence === 'once' && ob.specificDate) {
+      if (ob.specificDate < today && !getCompletion(ob.id, ob.specificDate)) {
+        overdueItems.push({ title: ob.title, dueDate: ob.specificDate });
+      }
+      return;
+    }
+    const sixMonthsAgo = new Date(); sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    getInstancesInRange(ob, sixMonthsAgo, yesterday).forEach(d => {
+      if (d < today && !getCompletion(ob.id, d)) {
+        overdueItems.push({ title: ob.title, dueDate: d });
+      }
+    });
+  });
+
+  const report = document.getElementById('print-report');
+  report.innerHTML = `
+    <div class="report-header">
+      <h1>Compliance Report - ${esc(client.name)}</h1>
+      <p>Generated on ${formatDate(todayStr())} | Dove IT MSP Compliance Tracker</p>
+    </div>
+
+    <div class="report-section">
+      <h3>Client Information</h3>
+      <table style="width:100%;border-collapse:collapse">
+        <tr><td style="padding:4px 8px;font-weight:600;width:150px">Name</td><td style="padding:4px 8px">${esc(client.name)}</td></tr>
+        ${client.contractDetails ? `<tr><td style="padding:4px 8px;font-weight:600">Contract</td><td style="padding:4px 8px">${esc(client.contractDetails)}</td></tr>` : ''}
+        ${client.contactEmail ? `<tr><td style="padding:4px 8px;font-weight:600">Email</td><td style="padding:4px 8px">${esc(client.contactEmail)}</td></tr>` : ''}
+        ${client.contactPhone ? `<tr><td style="padding:4px 8px;font-weight:600">Phone</td><td style="padding:4px 8px">${esc(client.contactPhone)}</td></tr>` : ''}
+        ${client.region ? `<tr><td style="padding:4px 8px;font-weight:600">Region</td><td style="padding:4px 8px">${esc(client.region)}</td></tr>` : ''}
+        ${client.primaryTech ? `<tr><td style="padding:4px 8px;font-weight:600">Primary Tech</td><td style="padding:4px 8px">${esc(client.primaryTech)}</td></tr>` : ''}
+        ${client.secondaryTech ? `<tr><td style="padding:4px 8px;font-weight:600">Secondary Tech</td><td style="padding:4px 8px">${esc(client.secondaryTech)}</td></tr>` : ''}
+      </table>
+    </div>
+
+    <div class="report-section">
+      <h3>Compliance Summary (This Month)</h3>
+      <p><strong>${comp.pct}%</strong> compliant &mdash; ${comp.done} of ${comp.total} obligations completed</p>
+    </div>
+
+    <div class="report-section">
+      <h3>Obligations (${obs.length})</h3>
+      ${obs.length === 0 ? '<p>No obligations configured.</p>' : `
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+        <thead><tr style="background:#f3f4f6"><th style="padding:6px 8px;text-align:left;border:1px solid #ddd">Title</th><th style="padding:6px 8px;text-align:left;border:1px solid #ddd">Frequency</th><th style="padding:6px 8px;text-align:left;border:1px solid #ddd">Next Due</th></tr></thead>
+        <tbody>${obs.map(ob => {
+          const nextDue = getNextDueDate(ob);
+          return `<tr><td style="padding:6px 8px;border:1px solid #ddd">${esc(ob.title)}</td><td style="padding:6px 8px;border:1px solid #ddd">${capitalize(ob.recurrence)}</td><td style="padding:6px 8px;border:1px solid #ddd">${nextDue ? formatDate(nextDue) : 'N/A'}</td></tr>`;
+        }).join('')}</tbody>
+      </table>`}
+    </div>
+
+    ${overdueItems.length > 0 ? `<div class="report-section">
+      <h3 style="color:var(--danger)">Overdue Items (${overdueItems.length})</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+        <thead><tr style="background:#fef2f2"><th style="padding:6px 8px;text-align:left;border:1px solid #ddd">Obligation</th><th style="padding:6px 8px;text-align:left;border:1px solid #ddd">Due Date</th></tr></thead>
+        <tbody>${overdueItems.map(item => `<tr><td style="padding:6px 8px;border:1px solid #ddd">${esc(item.title)}</td><td style="padding:6px 8px;border:1px solid #ddd">${formatDate(item.dueDate)}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>` : ''}
+
+    <div class="report-section">
+      <h3>Recent Completions (Last 20)</h3>
+      ${clientCompletions.length === 0 ? '<p>No completions recorded.</p>' : `
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+        <thead><tr style="background:#f0fdf4"><th style="padding:6px 8px;text-align:left;border:1px solid #ddd">Obligation</th><th style="padding:6px 8px;text-align:left;border:1px solid #ddd">Due Date</th><th style="padding:6px 8px;text-align:left;border:1px solid #ddd">Completed By</th><th style="padding:6px 8px;text-align:left;border:1px solid #ddd">Date</th><th style="padding:6px 8px;text-align:left;border:1px solid #ddd">Notes</th></tr></thead>
+        <tbody>${clientCompletions.slice(0, 20).map(c => `<tr><td style="padding:6px 8px;border:1px solid #ddd">${esc(c.obligationTitle)}</td><td style="padding:6px 8px;border:1px solid #ddd">${formatDate(c.dueDate)}</td><td style="padding:6px 8px;border:1px solid #ddd">${esc(c.completedBy)}</td><td style="padding:6px 8px;border:1px solid #ddd">${formatDateTime(c.completedAt)}</td><td style="padding:6px 8px;border:1px solid #ddd">${esc(c.notes || '')}</td></tr>`).join('')}</tbody>
+      </table>`}
+    </div>
+  `;
+
+  window.print();
+}
+
+// ========================================================================
 // INIT
 // ========================================================================
 document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -1591,8 +2485,18 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 // Keyboard: Escape closes modal
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+// Initialize all features
+loadTheme();
+initGlobalSearch();
 initCalendar();
 renderDashboard();
+updateNotificationStatus();
+
+// Check notifications on load
+setTimeout(checkAndNotify, 2000);
+
+// Periodic notification check (every 30 min)
+setInterval(checkAndNotify, 1800000);
 </script>
 </body>
 </html>
