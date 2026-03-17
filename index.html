@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSP Compliance Tracker</title>
+<style>
+/* ========== RESET & BASE ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #1e40af;
+  --primary-light: #3b82f6;
+  --primary-bg: #eff6ff;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --success: #16a34a;
+  --success-bg: #f0fdf4;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--gray-100);
+  color: var(--gray-900);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ========== NAV ========== */
+.navbar {
+  background: var(--primary);
+  color: white;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-right: 40px;
+  white-space: nowrap;
+}
+
+.navbar-brand span { font-weight: 400; opacity: 0.8; font-size: 0.85rem; margin-left: 8px; }
+
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  list-style: none;
+  height: 100%;
+}
+
+.nav-tabs li {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.nav-tab {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-family: var(--font);
+  cursor: pointer;
+  border-radius: var(--radius) var(--radius) 0 0;
+  transition: all 0.15s;
+  position: relative;
+  font-weight: 500;
+}
+
+.nav-tab:hover { color: white; background: rgba(255,255,255,0.1); }
+.nav-tab.active { color: white; background: rgba(255,255,255,0.2); }
+.nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: white;
+  border-radius: 3px 3px 0 0;
+}
+
+.nav-badge {
+  background: var(--danger);
+  color: white;
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
+  font-weight: 700;
+}
+
+/* ========== LAYOUT ========== */
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.view { display: none; }
+.view.active { display: block; }
+
+/* ========== CARDS ========== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--primary);
+}
+
+.stat-card.danger { border-left-color: var(--danger); }
+.stat-card.warning { border-left-color: var(--warning); }
+.stat-card.success { border-left-color: var(--success); }
+
+.stat-card .stat-label { font-size: 0.8rem; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+.stat-card .stat-value { font-size: 2rem; font-weight: 700; margin-top: 4px; }
+.stat-card.danger .stat-value { color: var(--danger); }
+.stat-card.success .stat-value { color: var(--success); }
+
+/* ========== TABLES ========== */
+.panel {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-header h2 { font-size: 1.1rem; font-weight: 600; }
+
+.panel-body { padding: 0; }
+.panel-body.padded { padding: 20px; }
+
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-500);
+  font-weight: 600;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+}
+tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 0.9rem;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--gray-50); }
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--gray-400);
+}
+.empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.empty-state p { font-size: 0.95rem; }
+
+/* ========== BADGES ========== */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-danger { background: var(--danger-bg); color: var(--danger); }
+.badge-warning { background: var(--warning-bg); color: #92400e; }
+.badge-info { background: var(--primary-bg); color: var(--primary); }
+.badge-gray { background: var(--gray-100); color: var(--gray-600); }
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: var(--font);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #1e3a8a; }
+
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #15803d; }
+
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { background: #b91c1c; }
+
+.btn-outline {
+  background: white;
+  color: var(--gray-700);
+  border-color: var(--gray-300);
+}
+.btn-outline:hover { background: var(--gray-50); border-color: var(--gray-400); }
+
+.btn-sm { padding: 4px 10px; font-size: 0.8rem; }
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius);
+  color: var(--gray-500);
+  font-size: 1rem;
+  transition: all 0.15s;
+}
+.btn-icon:hover { background: var(--gray-100); color: var(--gray-700); }
+.btn-icon.danger:hover { background: var(--danger-bg); color: var(--danger); }
+
+/* ========== MODALS ========== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-header h3 { font-size: 1.1rem; font-weight: 600; }
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--gray-400);
+  padding: 0 4px;
+  line-height: 1;
+}
+.modal-close:hover { color: var(--gray-600); }
+
+.modal-body { padding: 24px; }
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ========== FORMS ========== */
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 4px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-family: var(--font);
+  transition: border-color 0.15s;
+}
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+
+textarea.form-control { resize: vertical; min-height: 80px; }
+
+select.form-control { cursor: pointer; }
+
+/* ========== CALENDAR ========== */
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.calendar-nav h2 { font-size: 1.2rem; min-width: 180px; text-align: center; }
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.calendar-grid .day-header {
+  background: var(--gray-50);
+  padding: 8px;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+}
+
+.calendar-grid .day-cell {
+  background: white;
+  min-height: 100px;
+  padding: 8px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.calendar-grid .day-cell:hover { background: var(--gray-50); }
+.calendar-grid .day-cell.other-month { background: var(--gray-50); color: var(--gray-400); }
+.calendar-grid .day-cell.today { background: var(--primary-bg); }
+
+.day-number { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+.day-dots { display: flex; flex-direction: column; gap: 2px; }
+.day-dot {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.day-dot.completed { background: var(--success-bg); color: var(--success); }
+.day-dot.overdue { background: var(--danger-bg); color: var(--danger); }
+.day-dot.pending { background: var(--primary-bg); color: var(--primary); }
+
+/* ========== CLIENT CARDS ========== */
+.client-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.client-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  transition: box-shadow 0.15s;
+}
+.client-card:hover { box-shadow: var(--shadow-md); }
+
+.client-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 12px;
+}
+.client-card h3 { font-size: 1.05rem; font-weight: 600; }
+.client-card .client-meta { font-size: 0.85rem; color: var(--gray-500); margin-bottom: 12px; }
+
+.compliance-bar {
+  height: 6px;
+  background: var(--gray-200);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+.compliance-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.client-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--gray-500);
+}
+
+/* ========== FILTER BAR ========== */
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ========== TOAST ========== */
+.toast-container {
+  position: fixed;
+  top: 72px;
+  right: 24px;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--gray-800);
+  color: white;
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  font-size: 0.9rem;
+  animation: slideIn 0.2s ease-out;
+  max-width: 360px;
+}
+.toast.success { background: var(--success); }
+.toast.danger { background: var(--danger); }
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .navbar { padding: 0 12px; }
+  .navbar-brand span { display: none; }
+  .nav-tab { padding: 8px 10px; font-size: 0.8rem; }
+  .container { padding: 16px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .calendar-grid .day-cell { min-height: 60px; padding: 4px; }
+  .day-dot { font-size: 0.6rem; }
+  .client-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar">
+  <div class="navbar-brand">MSP Tracker <span>Compliance Manager</span></div>
+  <ul class="nav-tabs">
+    <li><button class="nav-tab active" data-view="dashboard">Dashboard<span id="overdue-badge" class="nav-badge" style="display:none"></span></button></li>
+    <li><button class="nav-tab" data-view="clients">Clients</button></li>
+    <li><button class="nav-tab" data-view="obligations">Obligations</button></li>
+    <li><button class="nav-tab" data-view="calendar">Calendar</button></li>
+    <li><button class="nav-tab" data-view="settings">Settings</button></li>
+  </ul>
+</nav>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<div class="container">
+
+  <!-- ========== DASHBOARD ========== -->
+  <div id="view-dashboard" class="view active">
+    <div class="stats-grid" id="dashboard-stats"></div>
+    <div class="panel" id="panel-overdue">
+      <div class="panel-header"><h2>Overdue Obligations</h2></div>
+      <div class="panel-body" id="overdue-table"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h2>Upcoming This Week</h2></div>
+      <div class="panel-body" id="upcoming-table"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h2>Recently Completed</h2></div>
+      <div class="panel-body" id="recent-table"></div>
+    </div>
+  </div>
+
+  <!-- ========== CLIENTS ========== -->
+  <div id="view-clients" class="view">
+    <div class="panel-header" style="background:none; padding: 0 0 16px 0;">
+      <h2>Clients</h2>
+      <button class="btn btn-primary" onclick="openModal('client')">+ Add Client</button>
+    </div>
+    <div class="client-grid" id="client-grid"></div>
+    <div id="clients-empty"></div>
+  </div>
+
+  <!-- ========== OBLIGATIONS ========== -->
+  <div id="view-obligations" class="view">
+    <div class="panel-header" style="background:none; padding: 0 0 16px 0;">
+      <h2>Obligations</h2>
+      <button class="btn btn-primary" onclick="openModal('obligation')">+ Add Obligation</button>
+    </div>
+    <div class="filter-bar">
+      <select class="form-control" style="width:auto" id="filter-client" onchange="renderObligations()">
+        <option value="">All Clients</option>
+      </select>
+      <select class="form-control" style="width:auto" id="filter-recurrence" onchange="renderObligations()">
+        <option value="">All Frequencies</option>
+        <option value="weekly">Weekly</option>
+        <option value="biweekly">Bi-Weekly</option>
+        <option value="monthly">Monthly</option>
+        <option value="quarterly">Quarterly</option>
+        <option value="annually">Annually</option>
+      </select>
+    </div>
+    <div class="panel">
+      <div class="panel-body" id="obligations-table"></div>
+    </div>
+  </div>
+
+  <!-- ========== CALENDAR ========== -->
+  <div id="view-calendar" class="view">
+    <div class="calendar-nav">
+      <button class="btn btn-outline btn-sm" onclick="changeMonth(-1)">&larr; Prev</button>
+      <h2 id="calendar-title"></h2>
+      <button class="btn btn-outline btn-sm" onclick="changeMonth(1)">Next &rarr;</button>
+      <button class="btn btn-outline btn-sm" onclick="goToToday()">Today</button>
+    </div>
+    <div class="calendar-grid" id="calendar-grid"></div>
+  </div>
+
+  <!-- ========== SETTINGS ========== -->
+  <div id="view-settings" class="view">
+    <div class="panel">
+      <div class="panel-header"><h2>Team Members / Technicians</h2></div>
+      <div class="panel-body padded">
+        <p style="font-size:0.85rem;color:var(--gray-500);margin-bottom:12px">Manage the list of people who can be assigned to complete obligations.</p>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <input type="text" class="form-control" id="new-tech-name" placeholder="Enter name..." style="max-width:300px">
+          <button class="btn btn-primary" onclick="addTechnician()">Add</button>
+        </div>
+        <div id="tech-list"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h2>Data Management</h2></div>
+      <div class="panel-body padded">
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-outline" onclick="exportData()">Export Data (JSON)</button>
+          <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">Import Data (JSON)</button>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+          <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+        </div>
+        <div style="margin-top:16px">
+          <button class="btn btn-outline" onclick="loadSampleData()">Load Sample Data</button>
+          <span style="font-size:0.8rem;color:var(--gray-400);margin-left:8px">Loads example clients & obligations to try the app</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========== MODAL ========== -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title"></h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<script>
+// ========================================================================
+// DATA LAYER
+// ========================================================================
+const STORAGE_KEY = 'msp_tracker_data';
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+}
+
+function getDefaultData() {
+  return { clients: [], obligations: [], completions: [], technicians: [] };
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return getDefaultData();
+    const d = JSON.parse(raw);
+    return { ...getDefaultData(), ...d };
+  } catch { return getDefaultData(); }
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+let DATA = loadData();
+
+// CRUD helpers
+function addClient(c) { c.id = generateId(); c.createdAt = new Date().toISOString(); DATA.clients.push(c); saveData(DATA); return c; }
+function updateClient(id, updates) { const c = DATA.clients.find(x => x.id === id); if (c) Object.assign(c, updates); saveData(DATA); }
+function deleteClient(id) {
+  DATA.clients = DATA.clients.filter(x => x.id !== id);
+  const obIds = DATA.obligations.filter(x => x.clientId === id).map(x => x.id);
+  DATA.obligations = DATA.obligations.filter(x => x.clientId !== id);
+  DATA.completions = DATA.completions.filter(x => !obIds.includes(x.obligationId));
+  saveData(DATA);
+}
+
+function addObligation(o) { o.id = generateId(); o.createdAt = new Date().toISOString(); DATA.obligations.push(o); saveData(DATA); return o; }
+function updateObligation(id, updates) { const o = DATA.obligations.find(x => x.id === id); if (o) Object.assign(o, updates); saveData(DATA); }
+function deleteObligation(id) {
+  DATA.obligations = DATA.obligations.filter(x => x.id !== id);
+  DATA.completions = DATA.completions.filter(x => x.obligationId !== id);
+  saveData(DATA);
+}
+
+function addCompletion(comp) { comp.id = generateId(); DATA.completions.push(comp); saveData(DATA); return comp; }
+function removeCompletion(id) { DATA.completions = DATA.completions.filter(x => x.id !== id); saveData(DATA); }
+
+function getCompletion(obligationId, dueDate) {
+  return DATA.completions.find(x => x.obligationId === obligationId && x.dueDate === dueDate);
+}
+
+function addTechnician() {
+  const input = document.getElementById('new-tech-name');
+  const name = input.value.trim();
+  if (!name) return;
+  if (!DATA.technicians.includes(name)) { DATA.technicians.push(name); saveData(DATA); }
+  input.value = '';
+  renderSettings();
+  showToast('Technician added');
+}
+
+function removeTechnician(name) {
+  DATA.technicians = DATA.technicians.filter(x => x !== name);
+  saveData(DATA);
+  renderSettings();
+}
+
+// ========================================================================
+// RECURRENCE ENGINE
+// ========================================================================
+function dateStr(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function parseDate(s) {
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function todayStr() { return dateStr(new Date()); }
+
+function getInstancesInRange(ob, startDate, endDate) {
+  const instances = [];
+  const start = typeof startDate === 'string' ? parseDate(startDate) : new Date(startDate);
+  const end = typeof endDate === 'string' ? parseDate(endDate) : new Date(endDate);
+  const created = new Date(ob.createdAt);
+  created.setHours(0,0,0,0);
+
+  const effectiveStart = start < created ? created : start;
+
+  if (ob.recurrence === 'weekly' || ob.recurrence === 'biweekly') {
+    const step = ob.recurrence === 'biweekly' ? 14 : 7;
+    const dow = ob.dayOfWeek || 0;
+    // Find first matching day on or after effectiveStart
+    let cursor = new Date(effectiveStart);
+    while (cursor.getDay() !== dow) cursor.setDate(cursor.getDate() + 1);
+
+    // For biweekly, align to the creation date's week
+    if (ob.recurrence === 'biweekly') {
+      const createdDow = new Date(created);
+      while (createdDow.getDay() !== dow) createdDow.setDate(createdDow.getDate() + 1);
+      const diffWeeks = Math.round((cursor - createdDow) / (7 * 86400000));
+      if (diffWeeks % 2 !== 0) cursor.setDate(cursor.getDate() + 7);
+    }
+
+    while (cursor <= end) {
+      instances.push(dateStr(cursor));
+      cursor.setDate(cursor.getDate() + step);
+    }
+  } else if (ob.recurrence === 'monthly') {
+    const dom = ob.dayOfMonth || 1;
+    let cursor = new Date(effectiveStart.getFullYear(), effectiveStart.getMonth(), 1);
+    while (cursor <= end) {
+      const maxDay = new Date(cursor.getFullYear(), cursor.getMonth()+1, 0).getDate();
+      const day = Math.min(dom, maxDay);
+      const d = new Date(cursor.getFullYear(), cursor.getMonth(), day);
+      if (d >= effectiveStart && d <= end && d >= created) instances.push(dateStr(d));
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+  } else if (ob.recurrence === 'quarterly') {
+    const dom = ob.dayOfMonth || 1;
+    const startMonth = created.getMonth();
+    let cursor = new Date(effectiveStart.getFullYear(), effectiveStart.getMonth(), 1);
+    while (cursor <= end) {
+      const monthDiff = (cursor.getFullYear() - created.getFullYear()) * 12 + (cursor.getMonth() - startMonth);
+      if (monthDiff >= 0 && monthDiff % 3 === 0) {
+        const maxDay = new Date(cursor.getFullYear(), cursor.getMonth()+1, 0).getDate();
+        const day = Math.min(dom, maxDay);
+        const d = new Date(cursor.getFullYear(), cursor.getMonth(), day);
+        if (d >= effectiveStart && d <= end && d >= created) instances.push(dateStr(d));
+      }
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+  } else if (ob.recurrence === 'annually') {
+    const m = ob.monthOfYear ? ob.monthOfYear - 1 : created.getMonth();
+    const dom = ob.dayOfMonth || 1;
+    for (let y = effectiveStart.getFullYear(); y <= end.getFullYear(); y++) {
+      const maxDay = new Date(y, m+1, 0).getDate();
+      const day = Math.min(dom, maxDay);
+      const d = new Date(y, m, day);
+      if (d >= effectiveStart && d <= end && d >= created) instances.push(dateStr(d));
+    }
+  }
+  return instances;
+}
+
+function getNextDueDate(ob) {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const future = new Date(today);
+  future.setFullYear(future.getFullYear() + 1);
+  const instances = getInstancesInRange(ob, today, future);
+  return instances.length > 0 ? instances[0] : null;
+}
+
+function getAllOverdue() {
+  const today = todayStr();
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const results = [];
+  DATA.obligations.forEach(ob => {
+    const instances = getInstancesInRange(ob, sixMonthsAgo, yesterday);
+    instances.forEach(d => {
+      if (d < today && !getCompletion(ob.id, d)) {
+        const client = DATA.clients.find(c => c.id === ob.clientId);
+        const daysOverdue = Math.floor((new Date() - parseDate(d)) / 86400000);
+        results.push({ obligation: ob, client, dueDate: d, daysOverdue });
+      }
+    });
+  });
+  results.sort((a, b) => b.daysOverdue - a.daysOverdue);
+  return results;
+}
+
+function getUpcomingThisWeek() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const endOfWeek = new Date(today); endOfWeek.setDate(endOfWeek.getDate() + 7);
+  const todayS = todayStr();
+  const results = [];
+  DATA.obligations.forEach(ob => {
+    const instances = getInstancesInRange(ob, today, endOfWeek);
+    instances.forEach(d => {
+      if (!getCompletion(ob.id, d)) {
+        const client = DATA.clients.find(c => c.id === ob.clientId);
+        const daysUntil = Math.floor((parseDate(d) - today) / 86400000);
+        results.push({ obligation: ob, client, dueDate: d, daysUntil });
+      }
+    });
+  });
+  results.sort((a, b) => a.daysUntil - b.daysUntil);
+  return results;
+}
+
+function getRecentCompletions(limit = 10) {
+  const sorted = [...DATA.completions].sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+  return sorted.slice(0, limit).map(comp => {
+    const ob = DATA.obligations.find(o => o.id === comp.obligationId);
+    const client = ob ? DATA.clients.find(c => c.id === ob.clientId) : null;
+    return { ...comp, obligation: ob, client };
+  });
+}
+
+function getClientCompliance(clientId) {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const obs = DATA.obligations.filter(o => o.clientId === clientId);
+  let total = 0, done = 0;
+  obs.forEach(ob => {
+    const instances = getInstancesInRange(ob, monthStart, monthEnd);
+    instances.forEach(d => {
+      total++;
+      if (getCompletion(ob.id, d)) done++;
+    });
+  });
+  return { total, done, pct: total > 0 ? Math.round((done / total) * 100) : 100 };
+}
+
+// ========================================================================
+// RENDERING
+// ========================================================================
+function switchView(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.nav-tab[data-view="${view}"]`).classList.add('active');
+
+  if (view === 'dashboard') renderDashboard();
+  else if (view === 'clients') renderClients();
+  else if (view === 'obligations') renderObligations();
+  else if (view === 'calendar') renderCalendar();
+  else if (view === 'settings') renderSettings();
+}
+
+// --- DASHBOARD ---
+function renderDashboard() {
+  const overdue = getAllOverdue();
+  const upcoming = getUpcomingThisWeek();
+  const recent = getRecentCompletions();
+
+  // Completed this month
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const completedThisMonth = DATA.completions.filter(c => new Date(c.completedAt) >= monthStart).length;
+
+  // Badge
+  const badge = document.getElementById('overdue-badge');
+  if (overdue.length > 0) { badge.style.display = 'inline'; badge.textContent = overdue.length; }
+  else { badge.style.display = 'none'; }
+
+  // Stats
+  document.getElementById('dashboard-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total Clients</div><div class="stat-value">${DATA.clients.length}</div></div>
+    <div class="stat-card warning"><div class="stat-label">Due This Week</div><div class="stat-value">${upcoming.length}</div></div>
+    <div class="stat-card danger"><div class="stat-label">Overdue</div><div class="stat-value">${overdue.length}</div></div>
+    <div class="stat-card success"><div class="stat-label">Completed This Month</div><div class="stat-value">${completedThisMonth}</div></div>
+  `;
+
+  // Overdue table
+  if (overdue.length === 0) {
+    document.getElementById('overdue-table').innerHTML = '<div class="empty-state"><div class="empty-icon">&#10003;</div><p>No overdue obligations. Great job!</p></div>';
+  } else {
+    document.getElementById('overdue-table').innerHTML = `<table><thead><tr><th>Client</th><th>Obligation</th><th>Due Date</th><th>Days Overdue</th><th>Action</th></tr></thead><tbody>${
+      overdue.map(r => `<tr><td>${esc(r.client?.name || 'Unknown')}</td><td>${esc(r.obligation.title)}</td><td>${formatDate(r.dueDate)}</td><td><span class="badge badge-danger">${r.daysOverdue} days</span></td><td><button class="btn btn-success btn-sm" onclick="openCompleteModal('${r.obligation.id}','${r.dueDate}')">Complete</button></td></tr>`).join('')
+    }</tbody></table>`;
+  }
+
+  // Upcoming
+  if (upcoming.length === 0) {
+    document.getElementById('upcoming-table').innerHTML = '<div class="empty-state"><p>Nothing due this week.</p></div>';
+  } else {
+    document.getElementById('upcoming-table').innerHTML = `<table><thead><tr><th>Client</th><th>Obligation</th><th>Due Date</th><th>Due In</th><th>Action</th></tr></thead><tbody>${
+      upcoming.map(r => `<tr><td>${esc(r.client?.name || 'Unknown')}</td><td>${esc(r.obligation.title)}</td><td>${formatDate(r.dueDate)}</td><td><span class="badge ${r.daysUntil <= 1 ? 'badge-warning' : 'badge-info'}">${r.daysUntil === 0 ? 'Today' : r.daysUntil + ' days'}</span></td><td><button class="btn btn-success btn-sm" onclick="openCompleteModal('${r.obligation.id}','${r.dueDate}')">Complete</button></td></tr>`).join('')
+    }</tbody></table>`;
+  }
+
+  // Recent completions
+  if (recent.length === 0) {
+    document.getElementById('recent-table').innerHTML = '<div class="empty-state"><p>No completions yet.</p></div>';
+  } else {
+    document.getElementById('recent-table').innerHTML = `<table><thead><tr><th>Client</th><th>Obligation</th><th>Due Date</th><th>Completed By</th><th>Completed At</th><th>Action</th></tr></thead><tbody>${
+      recent.map(r => `<tr><td>${esc(r.client?.name || 'Unknown')}</td><td>${esc(r.obligation?.title || 'Deleted')}</td><td>${formatDate(r.dueDate)}</td><td>${esc(r.completedBy)}</td><td>${formatDateTime(r.completedAt)}</td><td><button class="btn btn-outline btn-sm btn-icon danger" onclick="undoCompletion('${r.id}')" title="Undo">&#8634;</button></td></tr>`).join('')
+    }</tbody></table>`;
+  }
+}
+
+// --- CLIENTS ---
+function renderClients() {
+  const grid = document.getElementById('client-grid');
+  const empty = document.getElementById('clients-empty');
+
+  if (DATA.clients.length === 0) {
+    grid.innerHTML = '';
+    empty.innerHTML = '<div class="empty-state" style="padding:60px 20px"><div class="empty-icon">&#128188;</div><p>No clients yet. Add your first client to get started!</p></div>';
+    return;
+  }
+  empty.innerHTML = '';
+
+  grid.innerHTML = DATA.clients.map(c => {
+    const comp = getClientCompliance(c.id);
+    const obCount = DATA.obligations.filter(o => o.clientId === c.id).length;
+    const barColor = comp.pct >= 80 ? 'var(--success)' : comp.pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+    return `<div class="client-card">
+      <div class="client-card-header">
+        <h3>${esc(c.name)}</h3>
+        <div>
+          <button class="btn-icon" onclick="openModal('client','${c.id}')" title="Edit">&#9998;</button>
+          <button class="btn-icon danger" onclick="confirmDeleteClient('${c.id}')" title="Delete">&#128465;</button>
+        </div>
+      </div>
+      <div class="client-meta">${esc(c.contractDetails || 'No contract details')}</div>
+      ${c.contactEmail ? `<div style="font-size:0.8rem;color:var(--gray-500)">${esc(c.contactEmail)}</div>` : ''}
+      ${c.contactPhone ? `<div style="font-size:0.8rem;color:var(--gray-500)">${esc(c.contactPhone)}</div>` : ''}
+      <div class="client-stats">
+        <span>${obCount} obligation${obCount !== 1 ? 's' : ''}</span>
+        <span>${comp.pct}% compliant this month</span>
+      </div>
+      <div class="compliance-bar"><div class="compliance-bar-fill" style="width:${comp.pct}%;background:${barColor}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// --- OBLIGATIONS ---
+function renderObligations() {
+  // Update client filter
+  const filterClient = document.getElementById('filter-client');
+  const currentVal = filterClient.value;
+  filterClient.innerHTML = '<option value="">All Clients</option>' + DATA.clients.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  filterClient.value = currentVal;
+
+  const filterRec = document.getElementById('filter-recurrence').value;
+  let obs = [...DATA.obligations];
+  if (currentVal) obs = obs.filter(o => o.clientId === currentVal);
+  if (filterRec) obs = obs.filter(o => o.recurrence === filterRec);
+
+  const container = document.getElementById('obligations-table');
+  if (obs.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128203;</div><p>No obligations found. Add one to start tracking!</p></div>';
+    return;
+  }
+
+  const today = todayStr();
+  container.innerHTML = `<table><thead><tr><th>Client</th><th>Obligation</th><th>Frequency</th><th>Next Due</th><th>Status</th><th>Actions</th></tr></thead><tbody>${
+    obs.map(ob => {
+      const client = DATA.clients.find(c => c.id === ob.clientId);
+      const nextDue = getNextDueDate(ob);
+      const nextComp = nextDue ? getCompletion(ob.id, nextDue) : null;
+      let status = '';
+      if (nextComp) status = '<span class="badge badge-success">Done</span>';
+      else if (nextDue && nextDue < today) status = '<span class="badge badge-danger">Overdue</span>';
+      else if (nextDue) status = '<span class="badge badge-info">Pending</span>';
+      else status = '<span class="badge badge-gray">N/A</span>';
+
+      return `<tr>
+        <td>${esc(client?.name || 'Unknown')}</td>
+        <td><strong>${esc(ob.title)}</strong>${ob.description ? '<br><small style="color:var(--gray-500)">' + esc(ob.description) + '</small>' : ''}</td>
+        <td><span class="badge badge-gray">${capitalize(ob.recurrence)}</span></td>
+        <td>${nextDue ? formatDate(nextDue) : 'N/A'}</td>
+        <td>${status}</td>
+        <td>
+          ${nextDue && !nextComp ? `<button class="btn btn-success btn-sm" onclick="openCompleteModal('${ob.id}','${nextDue}')">Complete</button>` : ''}
+          <button class="btn-icon" onclick="openModal('obligation','${ob.id}')" title="Edit">&#9998;</button>
+          <button class="btn-icon danger" onclick="confirmDeleteObligation('${ob.id}')" title="Delete">&#128465;</button>
+        </td>
+      </tr>`;
+    }).join('')
+  }</tbody></table>`;
+}
+
+// --- CALENDAR ---
+let calYear, calMonth;
+function initCalendar() { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); }
+function changeMonth(delta) { calMonth += delta; if (calMonth > 11) { calMonth = 0; calYear++; } else if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+function goToToday() { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); renderCalendar(); }
+
+function renderCalendar() {
+  const title = document.getElementById('calendar-title');
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  title.textContent = months[calMonth] + ' ' + calYear;
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const today = todayStr();
+
+  // Get all instances for this month
+  const monthStart = new Date(calYear, calMonth, 1);
+  const monthEnd = new Date(calYear, calMonth + 1, 0);
+  const instanceMap = {};
+
+  DATA.obligations.forEach(ob => {
+    const instances = getInstancesInRange(ob, monthStart, monthEnd);
+    const client = DATA.clients.find(c => c.id === ob.clientId);
+    instances.forEach(d => {
+      if (!instanceMap[d]) instanceMap[d] = [];
+      const comp = getCompletion(ob.id, d);
+      let status = 'pending';
+      if (comp) status = 'completed';
+      else if (d < today) status = 'overdue';
+      instanceMap[d].push({ obligation: ob, client, status, dueDate: d });
+    });
+  });
+
+  const grid = document.getElementById('calendar-grid');
+  let html = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<div class="day-header">${d}</div>`).join('');
+
+  // Previous month padding
+  const prevMonthDays = new Date(calYear, calMonth, 0).getDate();
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const day = prevMonthDays - i;
+    html += `<div class="day-cell other-month"><div class="day-number">${day}</div></div>`;
+  }
+
+  // Current month days
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = dateStr(new Date(calYear, calMonth, d));
+    const isToday = ds === today;
+    const items = instanceMap[ds] || [];
+    html += `<div class="day-cell${isToday ? ' today' : ''}" onclick="openDayDetail('${ds}')">
+      <div class="day-number">${d}</div>
+      <div class="day-dots">${items.slice(0, 3).map(i => `<div class="day-dot ${i.status}">${esc(i.client?.name || '')} - ${esc(i.obligation.title)}</div>`).join('')}${items.length > 3 ? `<div class="day-dot pending">+${items.length - 3} more</div>` : ''}</div>
+    </div>`;
+  }
+
+  // Next month padding
+  const totalCells = firstDay + daysInMonth;
+  const remaining = (7 - (totalCells % 7)) % 7;
+  for (let i = 1; i <= remaining; i++) {
+    html += `<div class="day-cell other-month"><div class="day-number">${i}</div></div>`;
+  }
+
+  grid.innerHTML = html;
+}
+
+// --- SETTINGS ---
+function renderSettings() {
+  const list = document.getElementById('tech-list');
+  if (DATA.technicians.length === 0) {
+    list.innerHTML = '<p style="color:var(--gray-400);font-size:0.85rem">No technicians added yet.</p>';
+    return;
+  }
+  list.innerHTML = DATA.technicians.map(t => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+    <span style="font-size:0.9rem">${esc(t)}</span>
+    <button class="btn-icon danger" onclick="removeTechnician('${esc(t)}')" title="Remove" style="font-size:0.8rem">&#10005;</button>
+  </div>`).join('');
+}
+
+// ========================================================================
+// MODALS
+// ========================================================================
+function openModal(type, editId) {
+  const overlay = document.getElementById('modal-overlay');
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  const footer = document.getElementById('modal-footer');
+
+  if (type === 'client') {
+    const c = editId ? DATA.clients.find(x => x.id === editId) : null;
+    title.textContent = c ? 'Edit Client' : 'Add Client';
+    body.innerHTML = `
+      <div class="form-group"><label>Client Name *</label><input class="form-control" id="f-client-name" value="${esc(c?.name || '')}" required></div>
+      <div class="form-group"><label>Contract Details</label><textarea class="form-control" id="f-client-contract">${esc(c?.contractDetails || '')}</textarea></div>
+      <div class="form-group"><label>Contact Email</label><input class="form-control" id="f-client-email" type="email" value="${esc(c?.contactEmail || '')}"></div>
+      <div class="form-group"><label>Contact Phone</label><input class="form-control" id="f-client-phone" type="tel" value="${esc(c?.contactPhone || '')}"></div>
+    `;
+    footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveClient('${editId || ''}')">Save</button>`;
+  } else if (type === 'obligation') {
+    const o = editId ? DATA.obligations.find(x => x.id === editId) : null;
+    title.textContent = o ? 'Edit Obligation' : 'Add Obligation';
+    body.innerHTML = `
+      <div class="form-group"><label>Client *</label><select class="form-control" id="f-ob-client">${DATA.clients.map(c => `<option value="${c.id}" ${o && o.clientId === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Obligation Title *</label><input class="form-control" id="f-ob-title" value="${esc(o?.title || '')}"></div>
+      <div class="form-group"><label>Description</label><textarea class="form-control" id="f-ob-desc">${esc(o?.description || '')}</textarea></div>
+      <div class="form-group"><label>Frequency *</label><select class="form-control" id="f-ob-recurrence" onchange="toggleRecurrenceFields()">
+        <option value="weekly" ${o?.recurrence === 'weekly' ? 'selected' : ''}>Weekly</option>
+        <option value="biweekly" ${o?.recurrence === 'biweekly' ? 'selected' : ''}>Bi-Weekly</option>
+        <option value="monthly" ${!o || o?.recurrence === 'monthly' ? 'selected' : ''}>Monthly</option>
+        <option value="quarterly" ${o?.recurrence === 'quarterly' ? 'selected' : ''}>Quarterly</option>
+        <option value="annually" ${o?.recurrence === 'annually' ? 'selected' : ''}>Annually</option>
+      </select></div>
+      <div class="form-group" id="fg-dow" style="display:none"><label>Day of Week</label><select class="form-control" id="f-ob-dow">
+        ${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map((d,i) => `<option value="${i}" ${o?.dayOfWeek === i ? 'selected' : ''}>${d}</option>`).join('')}
+      </select></div>
+      <div class="form-group" id="fg-dom"><label>Day of Month</label><input class="form-control" type="number" id="f-ob-dom" min="1" max="31" value="${o?.dayOfMonth || 1}"></div>
+      <div class="form-group" id="fg-moy" style="display:none"><label>Month</label><select class="form-control" id="f-ob-moy">
+        ${['January','February','March','April','May','June','July','August','September','October','November','December'].map((m,i) => `<option value="${i+1}" ${o?.monthOfYear === i+1 ? 'selected' : ''}>${m}</option>`).join('')}
+      </select></div>
+    `;
+    footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveObligation('${editId || ''}')">Save</button>`;
+    toggleRecurrenceFields();
+  }
+
+  overlay.classList.add('open');
+  // Focus first input
+  setTimeout(() => { const firstInput = body.querySelector('input,select'); if (firstInput) firstInput.focus(); }, 100);
+}
+
+function toggleRecurrenceFields() {
+  const rec = document.getElementById('f-ob-recurrence').value;
+  document.getElementById('fg-dow').style.display = (rec === 'weekly' || rec === 'biweekly') ? 'block' : 'none';
+  document.getElementById('fg-dom').style.display = (rec === 'monthly' || rec === 'quarterly' || rec === 'annually') ? 'block' : 'none';
+  document.getElementById('fg-moy').style.display = rec === 'annually' ? 'block' : 'none';
+}
+
+function openCompleteModal(obligationId, dueDate) {
+  const ob = DATA.obligations.find(x => x.id === obligationId);
+  const client = ob ? DATA.clients.find(c => c.id === ob.clientId) : null;
+  const existing = getCompletion(obligationId, dueDate);
+
+  const overlay = document.getElementById('modal-overlay');
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  const footer = document.getElementById('modal-footer');
+
+  title.textContent = existing ? 'Completion Details' : 'Mark as Complete';
+
+  if (existing) {
+    body.innerHTML = `
+      <div class="form-group"><label>Client</label><div class="form-control" style="background:var(--gray-50)">${esc(client?.name || 'Unknown')}</div></div>
+      <div class="form-group"><label>Obligation</label><div class="form-control" style="background:var(--gray-50)">${esc(ob?.title || '')}</div></div>
+      <div class="form-group"><label>Due Date</label><div class="form-control" style="background:var(--gray-50)">${formatDate(dueDate)}</div></div>
+      <div class="form-group"><label>Completed By</label><div class="form-control" style="background:var(--gray-50)">${esc(existing.completedBy)}</div></div>
+      <div class="form-group"><label>Completed At</label><div class="form-control" style="background:var(--gray-50)">${formatDateTime(existing.completedAt)}</div></div>
+      ${existing.notes ? `<div class="form-group"><label>Notes</label><div class="form-control" style="background:var(--gray-50)">${esc(existing.notes)}</div></div>` : ''}
+    `;
+    footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Close</button><button class="btn btn-danger" onclick="undoCompletion('${existing.id}');closeModal()">Undo Completion</button>`;
+  } else {
+    const techOptions = DATA.technicians.length > 0
+      ? DATA.technicians.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')
+      : '';
+    body.innerHTML = `
+      <div class="form-group"><label>Client</label><div class="form-control" style="background:var(--gray-50)">${esc(client?.name || 'Unknown')}</div></div>
+      <div class="form-group"><label>Obligation</label><div class="form-control" style="background:var(--gray-50)">${esc(ob?.title || '')}</div></div>
+      <div class="form-group"><label>Due Date</label><div class="form-control" style="background:var(--gray-50)">${formatDate(dueDate)}</div></div>
+      <div class="form-group"><label>Completed By *</label>
+        ${DATA.technicians.length > 0
+          ? `<select class="form-control" id="f-comp-by"><option value="">Select...</option>${techOptions}<option value="__other">Other (type name)</option></select><input class="form-control" id="f-comp-by-other" style="display:none;margin-top:4px" placeholder="Enter name...">`
+          : `<input class="form-control" id="f-comp-by-text" placeholder="Enter name...">`
+        }
+      </div>
+      <div class="form-group"><label>Completion Date</label><input class="form-control" type="date" id="f-comp-date" value="${todayStr()}"></div>
+      <div class="form-group"><label>Notes</label><textarea class="form-control" id="f-comp-notes" placeholder="Optional notes..."></textarea></div>
+    `;
+    footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-success" onclick="saveCompletion('${obligationId}','${dueDate}')">Mark Complete</button>`;
+
+    // Wire up the "other" toggle
+    setTimeout(() => {
+      const sel = document.getElementById('f-comp-by');
+      if (sel) {
+        sel.addEventListener('change', () => {
+          const otherInput = document.getElementById('f-comp-by-other');
+          otherInput.style.display = sel.value === '__other' ? 'block' : 'none';
+        });
+      }
+    }, 50);
+  }
+
+  overlay.classList.add('open');
+}
+
+function openDayDetail(dateString) {
+  const items = [];
+  DATA.obligations.forEach(ob => {
+    const instances = getInstancesInRange(ob, dateString, dateString);
+    if (instances.includes(dateString)) {
+      const client = DATA.clients.find(c => c.id === ob.clientId);
+      const comp = getCompletion(ob.id, dateString);
+      items.push({ obligation: ob, client, completion: comp, dueDate: dateString });
+    }
+  });
+
+  if (items.length === 0) return;
+
+  const overlay = document.getElementById('modal-overlay');
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  const footer = document.getElementById('modal-footer');
+
+  title.textContent = 'Obligations for ' + formatDate(dateString);
+  body.innerHTML = items.map(item => {
+    const statusBadge = item.completion
+      ? '<span class="badge badge-success">Completed</span>'
+      : (item.dueDate < todayStr() ? '<span class="badge badge-danger">Overdue</span>' : '<span class="badge badge-info">Pending</span>');
+    return `<div style="padding:12px;border:1px solid var(--gray-200);border-radius:var(--radius);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <strong>${esc(item.client?.name || 'Unknown')}</strong><br>
+        <span style="font-size:0.85rem;color:var(--gray-600)">${esc(item.obligation.title)}</span><br>
+        ${statusBadge}
+        ${item.completion ? `<br><small style="color:var(--gray-500)">by ${esc(item.completion.completedBy)}</small>` : ''}
+      </div>
+      <div>
+        ${item.completion
+          ? `<button class="btn btn-outline btn-sm" onclick="undoCompletion('${item.completion.id}');closeModal()">Undo</button>`
+          : `<button class="btn btn-success btn-sm" onclick="closeModal();openCompleteModal('${item.obligation.id}','${item.dueDate}')">Complete</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+  footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Close</button>`;
+  overlay.classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ========================================================================
+// SAVE HANDLERS
+// ========================================================================
+function saveClient(editId) {
+  const name = document.getElementById('f-client-name').value.trim();
+  if (!name) { showToast('Client name is required', 'danger'); return; }
+  const data = {
+    name,
+    contractDetails: document.getElementById('f-client-contract').value.trim(),
+    contactEmail: document.getElementById('f-client-email').value.trim(),
+    contactPhone: document.getElementById('f-client-phone').value.trim()
+  };
+  if (editId) { updateClient(editId, data); showToast('Client updated'); }
+  else { addClient(data); showToast('Client added'); }
+  closeModal();
+  renderClients();
+  renderDashboard();
+}
+
+function saveObligation(editId) {
+  const clientId = document.getElementById('f-ob-client').value;
+  const titleVal = document.getElementById('f-ob-title').value.trim();
+  if (!clientId || !titleVal) { showToast('Client and title are required', 'danger'); return; }
+
+  const rec = document.getElementById('f-ob-recurrence').value;
+  const data = {
+    clientId,
+    title: titleVal,
+    description: document.getElementById('f-ob-desc').value.trim(),
+    recurrence: rec,
+    dayOfWeek: (rec === 'weekly' || rec === 'biweekly') ? parseInt(document.getElementById('f-ob-dow').value) : null,
+    dayOfMonth: (rec === 'monthly' || rec === 'quarterly' || rec === 'annually') ? parseInt(document.getElementById('f-ob-dom').value) : null,
+    monthOfYear: rec === 'annually' ? parseInt(document.getElementById('f-ob-moy').value) : null
+  };
+
+  if (editId) { updateObligation(editId, data); showToast('Obligation updated'); }
+  else { addObligation(data); showToast('Obligation added'); }
+  closeModal();
+  renderObligations();
+  renderDashboard();
+}
+
+function saveCompletion(obligationId, dueDate) {
+  let completedBy = '';
+  const sel = document.getElementById('f-comp-by');
+  const textInput = document.getElementById('f-comp-by-text');
+
+  if (sel) {
+    completedBy = sel.value === '__other'
+      ? document.getElementById('f-comp-by-other').value.trim()
+      : sel.value;
+  } else if (textInput) {
+    completedBy = textInput.value.trim();
+  }
+
+  if (!completedBy) { showToast('Please enter who completed this', 'danger'); return; }
+
+  // If this is a new technician name, add to list
+  if (!DATA.technicians.includes(completedBy)) {
+    DATA.technicians.push(completedBy);
+  }
+
+  const compDate = document.getElementById('f-comp-date').value;
+  addCompletion({
+    obligationId,
+    dueDate,
+    completedAt: new Date(compDate + 'T12:00:00').toISOString(),
+    completedBy,
+    notes: document.getElementById('f-comp-notes').value.trim()
+  });
+
+  showToast('Marked as complete!', 'success');
+  closeModal();
+  refreshCurrentView();
+}
+
+function undoCompletion(id) {
+  removeCompletion(id);
+  showToast('Completion undone');
+  refreshCurrentView();
+}
+
+function confirmDeleteClient(id) {
+  const c = DATA.clients.find(x => x.id === id);
+  if (confirm(`Delete "${c?.name}"? This will also delete all their obligations and completion records.`)) {
+    deleteClient(id);
+    showToast('Client deleted');
+    renderClients();
+    renderDashboard();
+  }
+}
+
+function confirmDeleteObligation(id) {
+  const o = DATA.obligations.find(x => x.id === id);
+  if (confirm(`Delete obligation "${o?.title}"? This will also remove all completion records for it.`)) {
+    deleteObligation(id);
+    showToast('Obligation deleted');
+    renderObligations();
+    renderDashboard();
+  }
+}
+
+// ========================================================================
+// DATA MANAGEMENT
+// ========================================================================
+function exportData() {
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'msp-tracker-backup-' + todayStr() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Data exported');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.clients || !imported.obligations) throw new Error('Invalid format');
+      DATA = { ...getDefaultData(), ...imported };
+      saveData(DATA);
+      showToast('Data imported successfully', 'success');
+      refreshCurrentView();
+    } catch (err) {
+      showToast('Invalid file format', 'danger');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function clearAllData() {
+  if (confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
+    if (confirm('Really delete everything? Last chance!')) {
+      DATA = getDefaultData();
+      saveData(DATA);
+      showToast('All data cleared');
+      refreshCurrentView();
+    }
+  }
+}
+
+function loadSampleData() {
+  if (DATA.clients.length > 0) {
+    if (!confirm('This will add sample data alongside your existing data. Continue?')) return;
+  }
+
+  const now = new Date();
+  const threeMonthsAgo = new Date(now); threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+  const c1 = addClient({ name: 'Martin Dental', contractDetails: '12-month contract. Half day onsite monthly. Remote support included.', contactEmail: 'office@martindental.com', contactPhone: '555-0101' });
+  const c2 = addClient({ name: 'Summit Law Group', contractDetails: 'Monthly retainer. Weekly backup verification. Quarterly security review.', contactEmail: 'it@summitlaw.com', contactPhone: '555-0202' });
+  const c3 = addClient({ name: 'Riverside Medical', contractDetails: 'Full managed services. Weekly onsite. HIPAA compliance required.', contactEmail: 'admin@riversidemedical.com', contactPhone: '555-0303' });
+  const c4 = addClient({ name: 'Pacific Manufacturing', contractDetails: '6-month contract. Monthly patching. Bi-weekly monitoring review.', contactEmail: 'ops@pacificmfg.com', contactPhone: '555-0404' });
+
+  // Martin Dental obligations
+  const o1 = addObligation({ clientId: c1.id, title: 'Onsite Visit - Half Day', description: 'Monthly onsite maintenance and user support', recurrence: 'monthly', dayOfMonth: 15, dayOfWeek: null, monthOfYear: null });
+  addObligation({ clientId: c1.id, title: 'Backup Verification', description: 'Verify all backups completed successfully', recurrence: 'weekly', dayOfWeek: 1, dayOfMonth: null, monthOfYear: null });
+
+  // Summit Law obligations
+  addObligation({ clientId: c2.id, title: 'Backup Verification', description: 'Check backup status and test restore', recurrence: 'weekly', dayOfWeek: 2, dayOfMonth: null, monthOfYear: null });
+  addObligation({ clientId: c2.id, title: 'Security Review', description: 'Quarterly security assessment and vulnerability scan', recurrence: 'quarterly', dayOfMonth: 1, dayOfWeek: null, monthOfYear: null });
+
+  // Riverside Medical obligations
+  addObligation({ clientId: c3.id, title: 'Onsite Support Day', description: 'Full day onsite support and maintenance', recurrence: 'weekly', dayOfWeek: 3, dayOfMonth: null, monthOfYear: null });
+  addObligation({ clientId: c3.id, title: 'HIPAA Compliance Check', description: 'Monthly HIPAA compliance verification', recurrence: 'monthly', dayOfMonth: 1, dayOfWeek: null, monthOfYear: null });
+
+  // Pacific Manufacturing obligations
+  addObligation({ clientId: c4.id, title: 'Patch Management', description: 'Apply and verify monthly patches', recurrence: 'monthly', dayOfMonth: 20, dayOfWeek: null, monthOfYear: null });
+  addObligation({ clientId: c4.id, title: 'Monitoring Review', description: 'Bi-weekly review of monitoring alerts and trends', recurrence: 'biweekly', dayOfWeek: 4, dayOfMonth: null, monthOfYear: null });
+
+  // Add sample technicians
+  ['John D.', 'Sarah M.', 'Mike R.'].forEach(t => {
+    if (!DATA.technicians.includes(t)) DATA.technicians.push(t);
+  });
+
+  // Add some sample completions for Martin Dental onsite (last 2 months)
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 15);
+  const twoMonthsAgoDate = new Date(now.getFullYear(), now.getMonth() - 2, 15);
+  addCompletion({ obligationId: o1.id, dueDate: dateStr(lastMonth), completedAt: lastMonth.toISOString(), completedBy: 'John D.', notes: 'Replaced toner, updated workstations' });
+  addCompletion({ obligationId: o1.id, dueDate: dateStr(twoMonthsAgoDate), completedAt: twoMonthsAgoDate.toISOString(), completedBy: 'Sarah M.', notes: 'Routine maintenance completed' });
+
+  saveData(DATA);
+  showToast('Sample data loaded!', 'success');
+  refreshCurrentView();
+}
+
+// ========================================================================
+// UTILITIES
+// ========================================================================
+function esc(s) {
+  if (!s) return '';
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+function formatDate(s) {
+  if (!s) return '';
+  const d = parseDate(s);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function formatDateTime(s) {
+  if (!s) return '';
+  const d = new Date(s);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function showToast(message, type = '') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast' + (type ? ' ' + type : '');
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+function refreshCurrentView() {
+  const active = document.querySelector('.nav-tab.active');
+  if (active) switchView(active.dataset.view);
+}
+
+// ========================================================================
+// INIT
+// ========================================================================
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchView(tab.dataset.view));
+});
+
+// Keyboard: Escape closes modal
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+initCalendar();
+renderDashboard();
+</script>
+</body>
+</html>
