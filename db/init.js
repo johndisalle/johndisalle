@@ -7,9 +7,15 @@ let pool;
 
 function getPool() {
   if (!pool) {
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) {
+      throw new Error('DATABASE_URL environment variable is not set');
+    }
+    // Enable SSL if DATABASE_URL points to a remote host (Railway, etc.)
+    const isLocal = dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      connectionString: dbUrl,
+      ssl: isLocal ? false : { rejectUnauthorized: false }
     });
   }
   return pool;

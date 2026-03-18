@@ -36,12 +36,16 @@ app.get('*', (req, res) => {
 // Start server
 async function start() {
   try {
+    console.log(`Starting server on port ${PORT}...`);
+    console.log(`DATABASE_URL is ${process.env.DATABASE_URL ? 'set' : 'NOT SET'}`);
+    console.log(`JWT_SECRET is ${process.env.JWT_SECRET ? 'set' : 'NOT SET'}`);
     await initDatabase();
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Dove IT Obligations Tracker running on port ${PORT}`);
     });
   } catch (err) {
-    console.error('Failed to start server:', err);
+    console.error('Failed to start server:', err.message);
+    console.error(err.stack);
     process.exit(1);
   }
 }
