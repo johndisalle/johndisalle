@@ -1995,9 +1995,19 @@ function obTypeDot(typeKey) {
 }
 
 // ========================================================================
-// DATA LAYER
+// DATA LAYER (API-backed with in-memory cache)
 // ========================================================================
-const STORAGE_KEY = 'msp_tracker_data';
+let AUTH_TOKEN = localStorage.getItem('msp_auth_token') || null;
+
+function api(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  if (AUTH_TOKEN) headers['Authorization'] = 'Bearer ' + AUTH_TOKEN;
+  return fetch('/api' + path, { ...options, headers }).then(r => {
+    if (r.status === 401) { AUTH_TOKEN = null; localStorage.removeItem('msp_auth_token'); doLogout(); throw new Error('Session expired'); }
+    if (!r.ok) return r.json().then(e => { throw new Error(e.error || 'API error'); });
+    return r.json();
+  });
+}
 
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
@@ -2007,68 +2017,47 @@ function getDefaultData() {
   return { clients: [], obligations: [], completions: [], technicians: [], activityLog: [], teamFeed: [], snoozes: [] };
 }
 
-function loadData() {
+// Convert snake_case API responses to camelCase for frontend compatibility
+function toCamel(obj) {
+  if (Array.isArray(obj)) return obj.map(toCamel);
+  if (obj === null || typeof obj !== 'object') return obj;
+  const out = {};
+  for (const [k, v] of Object.entries(obj)) {
+    const ck = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+    out[ck] = v;
+  }
+  return out;
+}
+
+async function loadDataFromAPI() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return getDefaultData();
-    const d = JSON.parse(raw);
-    return { ...getDefaultData(), ...d };
-  } catch { return getDefaultData(); }
+    const raw = await api('/activity/all');
+    return {
+      clients: toCamel(raw.clients || []),
+      obligations: toCamel(raw.obligations || []),
+      completions: toCamel(raw.completions || []),
+      technicians: raw.technicians || [],
+      activityLog: toCamel(raw.activityLog || []),
+      teamFeed: toCamel(raw.teamFeed || []),
+      snoozes: toCamel(raw.snoozes || [])
+    };
+  } catch (err) {
+    console.error('Failed to load data from API:', err);
+    return getDefaultData();
+  }
 }
 
-function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
+// Legacy compatibility - saveData is now a no-op since we sync via API
+function saveData(data) { /* data is synced via API calls */ }
 
-let DATA = loadData();
+let DATA = getDefaultData();
 
 // ========================================================================
-// AUTH & SESSION MANAGEMENT
+// AUTH & SESSION MANAGEMENT (API-backed)
 // ========================================================================
-const AUTH_KEY = 'msp_auth_users';
 const SESSION_KEY = 'msp_session';
 
-function getDefaultUsers() {
-  // Hash a password (simple hash for localStorage - NOT production secure)
-  return [{
-    id: 'admin_default',
-    username: 'admin',
-    passwordHash: simpleHash('admin'),
-    displayName: 'Administrator',
-    role: 'admin', // 'admin' or 'technician'
-    technicianName: '', // links to DATA.technicians entry
-    createdAt: new Date().toISOString()
-  }];
-}
-
-function simpleHash(str) {
-  // Simple deterministic hash for localStorage auth (NOT cryptographically secure)
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return 'h_' + Math.abs(hash).toString(36) + '_' + str.length;
-}
-
-function loadUsers() {
-  try {
-    const raw = localStorage.getItem(AUTH_KEY);
-    if (!raw) {
-      const defaults = getDefaultUsers();
-      saveUsers(defaults);
-      return defaults;
-    }
-    return JSON.parse(raw);
-  } catch { return getDefaultUsers(); }
-}
-
-function saveUsers(users) {
-  localStorage.setItem(AUTH_KEY, JSON.stringify(users));
-}
-
-let USERS = loadUsers();
+let USERS = []; // Populated from API for admin user management
 let CURRENT_USER = null;
 
 function getSession() {
@@ -2081,20 +2070,22 @@ function getSession() {
 
 function saveSession(user) {
   localStorage.setItem(SESSION_KEY, JSON.stringify({
-    userId: user.id,
+    userId: user.id || user.userId,
     username: user.username,
     role: user.role,
     displayName: user.displayName,
-    technicianName: user.technicianName,
+    technicianName: user.technicianName || '',
     loginAt: new Date().toISOString()
   }));
 }
 
 function clearSession() {
   localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem('msp_auth_token');
+  AUTH_TOKEN = null;
 }
 
-function doLogin() {
+async function doLogin() {
   const username = document.getElementById('login-username').value.trim().toLowerCase();
   const password = document.getElementById('login-password').value;
   const errorEl = document.getElementById('login-error');
@@ -2105,23 +2096,50 @@ function doLogin() {
     return;
   }
 
-  const user = USERS.find(u => u.username.toLowerCase() === username);
-  if (!user || user.passwordHash !== simpleHash(password)) {
-    errorEl.textContent = 'Invalid username or password';
-    errorEl.classList.add('visible');
-    document.getElementById('login-password').value = '';
-    return;
-  }
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
 
-  errorEl.classList.remove('visible');
-  CURRENT_USER = user;
-  saveSession(user);
-  onLoginSuccess();
+    if (!res.ok) {
+      const err = await res.json();
+      errorEl.textContent = err.error || 'Invalid username or password';
+      errorEl.classList.add('visible');
+      document.getElementById('login-password').value = '';
+      return;
+    }
+
+    const data = await res.json();
+    AUTH_TOKEN = data.token;
+    localStorage.setItem('msp_auth_token', data.token);
+
+    CURRENT_USER = {
+      id: data.user.id,
+      username: data.user.username,
+      role: data.user.role,
+      displayName: data.user.displayName,
+      technicianName: data.user.technicianName || ''
+    };
+
+    errorEl.classList.remove('visible');
+    saveSession(CURRENT_USER);
+
+    // Load all data from API now that we're authenticated
+    DATA = await loadDataFromAPI();
+
+    onLoginSuccess();
+  } catch (err) {
+    errorEl.textContent = 'Connection error. Please try again.';
+    errorEl.classList.add('visible');
+  }
 }
 
 function doLogout() {
   CURRENT_USER = null;
   clearSession();
+  DATA = getDefaultData();
   document.body.classList.remove('role-admin', 'role-technician');
   document.getElementById('login-overlay').classList.remove('hidden');
   document.getElementById('user-menu').style.display = 'none';
@@ -2254,22 +2272,17 @@ function openChangePasswordModal() {
   overlay.classList.add('open');
 }
 
-function savePasswordChange() {
+async function savePasswordChange() {
   const current = document.getElementById('f-pw-current').value;
   const newPw = document.getElementById('f-pw-new').value;
-  const confirm = document.getElementById('f-pw-confirm').value;
+  const confirmPw = document.getElementById('f-pw-confirm').value;
 
-  if (!current || !newPw || !confirm) {
+  if (!current || !newPw || !confirmPw) {
     showToast('All fields are required', 'danger');
     return;
   }
 
-  if (simpleHash(current) !== CURRENT_USER.passwordHash) {
-    showToast('Current password is incorrect', 'danger');
-    return;
-  }
-
-  if (newPw !== confirm) {
+  if (newPw !== confirmPw) {
     showToast('New passwords do not match', 'danger');
     return;
   }
@@ -2279,23 +2292,28 @@ function savePasswordChange() {
     return;
   }
 
-  const user = USERS.find(u => u.id === CURRENT_USER.id);
-  if (user) {
-    user.passwordHash = simpleHash(newPw);
-    CURRENT_USER.passwordHash = user.passwordHash;
-    saveUsers(USERS);
-    saveSession(CURRENT_USER);
+  try {
+    await api('/auth/change-password', { method: 'PUT', body: JSON.stringify({ currentPassword: current, newPassword: newPw }) });
     showToast('Password updated!', 'success');
     closeModal();
+  } catch (e) {
+    showToast(e.message || 'Failed to change password', 'danger');
   }
 }
 
 // ========================================================================
 // USER MANAGEMENT (Admin)
 // ========================================================================
-function renderUserManagement() {
+async function renderUserManagement() {
   const grid = document.getElementById('user-mgmt-grid');
   if (!grid) return;
+
+  try {
+    const users = await api('/auth/users');
+    USERS = users.map(u => toCamel(u));
+  } catch (e) {
+    console.error('Failed to load users:', e);
+  }
 
   grid.innerHTML = USERS.map(u => {
     const isCurrentUser = CURRENT_USER && u.id === CURRENT_USER.id;
@@ -2351,7 +2369,7 @@ function toggleUserTechField() {
   document.getElementById('fg-user-tech').style.display = role === 'technician' ? 'block' : 'none';
 }
 
-function saveNewUser() {
+async function saveNewUser() {
   const displayName = document.getElementById('f-user-display').value.trim();
   const username = document.getElementById('f-user-username').value.trim().toLowerCase();
   const password = document.getElementById('f-user-password').value;
@@ -2373,25 +2391,14 @@ function saveNewUser() {
     return;
   }
 
-  if (USERS.find(u => u.username.toLowerCase() === username)) {
-    showToast('Username already exists', 'danger');
-    return;
+  try {
+    await api('/auth/users', { method: 'POST', body: JSON.stringify({ username, password, displayName, role, technicianName: role === 'technician' ? techName : '' }) });
+    showToast(`Account "${username}" created!`, 'success');
+    closeModal();
+    renderUserManagement();
+  } catch (e) {
+    showToast(e.message || 'Failed to create user', 'danger');
   }
-
-  USERS.push({
-    id: generateId(),
-    username,
-    passwordHash: simpleHash(password),
-    displayName,
-    role,
-    technicianName: role === 'technician' ? techName : '',
-    createdAt: new Date().toISOString()
-  });
-
-  saveUsers(USERS);
-  showToast(`Account "${username}" created!`, 'success');
-  closeModal();
-  renderUserManagement();
 }
 
 function openEditUserModal(userId) {
@@ -2427,7 +2434,7 @@ function openEditUserModal(userId) {
   overlay.classList.add('open');
 }
 
-function saveEditUser(userId) {
+async function saveEditUser(userId) {
   const user = USERS.find(u => u.id === userId);
   if (!user) return;
 
@@ -2444,13 +2451,12 @@ function saveEditUser(userId) {
   user.role = role;
   user.technicianName = role === 'technician' ? techName : '';
 
-  saveUsers(USERS);
-
+  // Note: Full user edit API not yet implemented - update local cache for now
   // If editing current user, update session
   if (CURRENT_USER && CURRENT_USER.id === userId) {
-    CURRENT_USER = user;
-    saveSession(user);
-    onLoginSuccess(); // Refresh permissions
+    CURRENT_USER = { ...CURRENT_USER, displayName, role, technicianName: user.technicianName };
+    saveSession(CURRENT_USER);
+    onLoginSuccess();
   }
 
   showToast('User updated!', 'success');
@@ -2458,7 +2464,7 @@ function saveEditUser(userId) {
   renderUserManagement();
 }
 
-function deleteUser(userId) {
+async function deleteUser(userId) {
   const user = USERS.find(u => u.id === userId);
   if (!user) return;
   if (CURRENT_USER && userId === CURRENT_USER.id) {
@@ -2467,13 +2473,17 @@ function deleteUser(userId) {
   }
   if (!window.confirm(`Delete user "${user.displayName}" (@${user.username})?`)) return;
 
-  USERS = USERS.filter(u => u.id !== userId);
-  saveUsers(USERS);
-  showToast('User deleted');
-  renderUserManagement();
+  try {
+    await api('/auth/users/' + userId, { method: 'DELETE' });
+    USERS = USERS.filter(u => u.id !== userId);
+    showToast('User deleted');
+    renderUserManagement();
+  } catch (e) {
+    showToast(e.message || 'Failed to delete user', 'danger');
+  }
 }
 
-function resetUserPassword(userId) {
+async function resetUserPassword(userId) {
   const user = USERS.find(u => u.id === userId);
   if (!user) return;
 
@@ -2483,32 +2493,64 @@ function resetUserPassword(userId) {
     return;
   }
 
-  user.passwordHash = simpleHash(newPw);
-  saveUsers(USERS);
-  showToast(`Password reset for ${user.displayName}`, 'success');
+  try {
+    await api('/auth/users/' + userId + '/reset-password', { method: 'PUT', body: JSON.stringify({ newPassword: newPw }) });
+    showToast(`Password reset for ${user.displayName}`, 'success');
+  } catch (e) {
+    showToast(e.message || 'Failed to reset password', 'danger');
+  }
 }
 
-// CRUD helpers
-function addClient(c) { c.id = generateId(); c.createdAt = new Date().toISOString(); DATA.clients.push(c); saveData(DATA); return c; }
-function updateClient(id, updates) { const c = DATA.clients.find(x => x.id === id); if (c) Object.assign(c, updates); saveData(DATA); }
+// CRUD helpers (update local cache + fire API call)
+function addClient(c) {
+  c.id = generateId(); c.createdAt = new Date().toISOString(); DATA.clients.push(c);
+  api('/clients', { method: 'POST', body: JSON.stringify({ name: c.name, contractDetails: c.contractDetails, contactEmail: c.contactEmail, contactPhone: c.contactPhone, region: c.region, primaryTech: c.primaryTech, secondaryTech: c.secondaryTech }) })
+    .then(r => { const idx = DATA.clients.findIndex(x => x.id === c.id); if (idx >= 0) DATA.clients[idx] = toCamel(r); })
+    .catch(e => console.error('API addClient error:', e));
+  return c;
+}
+function updateClient(id, updates) {
+  const c = DATA.clients.find(x => x.id === id); if (c) Object.assign(c, updates);
+  api('/clients/' + id, { method: 'PUT', body: JSON.stringify({ name: updates.name, contractDetails: updates.contractDetails, contactEmail: updates.contactEmail, contactPhone: updates.contactPhone, region: updates.region, primaryTech: updates.primaryTech, secondaryTech: updates.secondaryTech }) })
+    .catch(e => console.error('API updateClient error:', e));
+}
 function deleteClient(id) {
   DATA.clients = DATA.clients.filter(x => x.id !== id);
   const obIds = DATA.obligations.filter(x => x.clientId === id).map(x => x.id);
   DATA.obligations = DATA.obligations.filter(x => x.clientId !== id);
   DATA.completions = DATA.completions.filter(x => !obIds.includes(x.obligationId));
-  saveData(DATA);
+  api('/clients/' + id, { method: 'DELETE' }).catch(e => console.error('API deleteClient error:', e));
 }
 
-function addObligation(o) { o.id = generateId(); o.createdAt = new Date().toISOString(); DATA.obligations.push(o); saveData(DATA); return o; }
-function updateObligation(id, updates) { const o = DATA.obligations.find(x => x.id === id); if (o) Object.assign(o, updates); saveData(DATA); }
+function addObligation(o) {
+  o.id = generateId(); o.createdAt = new Date().toISOString(); DATA.obligations.push(o);
+  api('/obligations', { method: 'POST', body: JSON.stringify({ clientId: o.clientId, title: o.title, description: o.description, obligationType: o.obligationType, recurrence: o.recurrence, specificDate: o.specificDate, dayOfWeek: o.dayOfWeek, dayOfMonth: o.dayOfMonth, monthOfYear: o.monthOfYear }) })
+    .then(r => { const idx = DATA.obligations.findIndex(x => x.id === o.id); if (idx >= 0) DATA.obligations[idx] = toCamel(r); })
+    .catch(e => console.error('API addObligation error:', e));
+  return o;
+}
+function updateObligation(id, updates) {
+  const o = DATA.obligations.find(x => x.id === id); if (o) Object.assign(o, updates);
+  api('/obligations/' + id, { method: 'PUT', body: JSON.stringify({ clientId: updates.clientId, title: updates.title, description: updates.description, obligationType: updates.obligationType, recurrence: updates.recurrence, specificDate: updates.specificDate, dayOfWeek: updates.dayOfWeek, dayOfMonth: updates.dayOfMonth, monthOfYear: updates.monthOfYear }) })
+    .catch(e => console.error('API updateObligation error:', e));
+}
 function deleteObligation(id) {
   DATA.obligations = DATA.obligations.filter(x => x.id !== id);
   DATA.completions = DATA.completions.filter(x => x.obligationId !== id);
-  saveData(DATA);
+  api('/obligations/' + id, { method: 'DELETE' }).catch(e => console.error('API deleteObligation error:', e));
 }
 
-function addCompletion(comp) { comp.id = generateId(); DATA.completions.push(comp); saveData(DATA); return comp; }
-function removeCompletion(id) { DATA.completions = DATA.completions.filter(x => x.id !== id); saveData(DATA); }
+function addCompletion(comp) {
+  comp.id = generateId(); DATA.completions.push(comp);
+  api('/completions', { method: 'POST', body: JSON.stringify({ obligationId: comp.obligationId, dueDate: comp.dueDate, completedBy: comp.completedBy, notes: comp.notes }) })
+    .then(r => { const idx = DATA.completions.findIndex(x => x.id === comp.id); if (idx >= 0) DATA.completions[idx] = toCamel(r); })
+    .catch(e => console.error('API addCompletion error:', e));
+  return comp;
+}
+function removeCompletion(id) {
+  DATA.completions = DATA.completions.filter(x => x.id !== id);
+  api('/completions/' + id, { method: 'DELETE' }).catch(e => console.error('API removeCompletion error:', e));
+}
 
 function getCompletion(obligationId, dueDate) {
   return DATA.completions.find(x => x.obligationId === obligationId && x.dueDate === dueDate);
@@ -2518,7 +2560,11 @@ function addTechnician() {
   const input = document.getElementById('new-tech-name');
   const name = input.value.trim();
   if (!name) return;
-  if (!DATA.technicians.includes(name)) { DATA.technicians.push(name); saveData(DATA); }
+  if (!DATA.technicians.includes(name)) {
+    DATA.technicians.push(name);
+    api('/technicians', { method: 'POST', body: JSON.stringify({ name }) })
+      .catch(e => console.error('API addTechnician error:', e));
+  }
   input.value = '';
   renderSettings();
   showToast('Technician added');
@@ -2526,7 +2572,8 @@ function addTechnician() {
 
 function removeTechnician(name) {
   DATA.technicians = DATA.technicians.filter(x => x !== name);
-  saveData(DATA);
+  api('/technicians/' + encodeURIComponent(name), { method: 'DELETE' })
+    .catch(e => console.error('API removeTechnician error:', e));
   renderSettings();
 }
 
@@ -3054,6 +3101,7 @@ function saveBulkComplete() {
 
   if (!DATA.technicians.includes(completedBy)) {
     DATA.technicians.push(completedBy);
+    api('/technicians', { method: 'POST', body: JSON.stringify({ name: completedBy }) }).catch(() => {});
   }
 
   const compDate = document.getElementById('f-bulk-date').value;
@@ -3441,6 +3489,7 @@ function saveCompletion(obligationId, dueDate) {
   // If this is a new technician name, add to list
   if (!DATA.technicians.includes(completedBy)) {
     DATA.technicians.push(completedBy);
+    api('/technicians', { method: 'POST', body: JSON.stringify({ name: completedBy }) }).catch(() => {});
   }
 
   const compDate = document.getElementById('f-comp-date').value;
@@ -3526,47 +3575,34 @@ function importData(event) {
 function clearAllData() {
   if (confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
     if (confirm('Really delete everything? Last chance!')) {
-      DATA = getDefaultData();
-      saveData(DATA);
-      showToast('All data cleared');
-      refreshCurrentView();
+      api('/activity/all', { method: 'DELETE' })
+        .then(() => {
+          DATA = getDefaultData();
+          showToast('All data cleared');
+          refreshCurrentView();
+        })
+        .catch(e => { showToast('Error clearing data: ' + e.message, 'danger'); });
     }
   }
 }
 
-function loadSampleData() {
+async function loadSampleData() {
   if (DATA.clients.length > 0) {
-    if (!confirm('This will add sample data alongside your existing data. Continue?')) return;
+    if (!confirm('This will replace existing data with sample data. Continue?')) return;
   }
 
+  try {
+    await api('/activity/sample-data', { method: 'POST' });
+    DATA = await loadDataFromAPI();
+    showToast('Sample data loaded!', 'success');
+    refreshCurrentView();
+    return;
+  } catch (e) {
+    console.error('API sample data failed, using local fallback:', e);
+  }
+
+  // Fallback to local sample data if API fails
   const now = new Date();
-  const threeMonthsAgo = new Date(now); threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-
-  // Add sample technicians first so they're available for client assignment
-  ['John D.', 'Sarah M.', 'Mike R.'].forEach(t => {
-    if (!DATA.technicians.includes(t)) DATA.technicians.push(t);
-  });
-
-  // Create sample user accounts for technicians
-  const sampleUsers = [
-    { username: 'john', displayName: 'John D.', technicianName: 'John D.' },
-    { username: 'sarah', displayName: 'Sarah M.', technicianName: 'Sarah M.' },
-    { username: 'mike', displayName: 'Mike R.', technicianName: 'Mike R.' }
-  ];
-  sampleUsers.forEach(su => {
-    if (!USERS.find(u => u.username === su.username)) {
-      USERS.push({
-        id: generateId(),
-        username: su.username,
-        passwordHash: simpleHash(su.username), // password = username for sample
-        displayName: su.displayName,
-        role: 'technician',
-        technicianName: su.technicianName,
-        createdAt: new Date().toISOString()
-      });
-    }
-  });
-  saveUsers(USERS);
 
   const c1 = addClient({ name: 'Martin Dental', contractDetails: '12-month contract. Half day onsite monthly. Remote support included.', contactEmail: 'office@martindental.com', contactPhone: '555-0101', region: 'Downtown', primaryTech: 'John D.', secondaryTech: 'Sarah M.' });
   const c2 = addClient({ name: 'Summit Law Group', contractDetails: 'Monthly retainer. Weekly backup verification. Quarterly security review.', contactEmail: 'it@summitlaw.com', contactPhone: '555-0202', region: 'Midtown', primaryTech: 'Sarah M.', secondaryTech: 'Mike R.' });
@@ -3960,7 +3996,8 @@ function addActivityNote(clientId, note, type) {
     type: type || 'note',
     timestamp: new Date().toISOString()
   });
-  saveData(DATA);
+  api('/activity/log', { method: 'POST', body: JSON.stringify({ clientId, note, type: type || 'note' }) })
+    .catch(e => console.error('API addActivityNote error:', e));
 }
 
 function openClientActivity(clientId) {
@@ -4732,7 +4769,7 @@ function addTeamFeedEntry(techName, obligationId, dueDate) {
   if (!DATA.teamFeed) DATA.teamFeed = [];
   const ob = DATA.obligations.find(o => o.id === obligationId);
   const client = ob ? DATA.clients.find(c => c.id === ob.clientId) : null;
-  DATA.teamFeed.push({
+  const entry = {
     id: generateId(),
     tech: techName,
     action: 'completed',
@@ -4740,10 +4777,11 @@ function addTeamFeedEntry(techName, obligationId, dueDate) {
     clientName: client?.name || 'Unknown',
     obligationType: ob?.obligationType || 'custom',
     timestamp: new Date().toISOString()
-  });
-  // Keep feed to last 100 entries
+  };
+  DATA.teamFeed.push(entry);
   if (DATA.teamFeed.length > 100) DATA.teamFeed = DATA.teamFeed.slice(-100);
-  saveData(DATA);
+  api('/activity/feed', { method: 'POST', body: JSON.stringify({ tech: entry.tech, action: entry.action, obligationTitle: entry.obligationTitle, clientName: entry.clientName, obligationType: entry.obligationType }) })
+    .catch(e => console.error('API addTeamFeedEntry error:', e));
 }
 
 function renderTeamFeed() {
@@ -5124,7 +5162,6 @@ function getSnooze(obligationId, dueDate) {
 
 function addSnooze(obligationId, dueDate, snoozeTo, reason) {
   if (!DATA.snoozes) DATA.snoozes = [];
-  // Remove any existing snooze for this item
   DATA.snoozes = DATA.snoozes.filter(s => !(s.obligationId === obligationId && s.dueDate === dueDate));
   DATA.snoozes.push({
     id: generateId(),
@@ -5135,13 +5172,15 @@ function addSnooze(obligationId, dueDate, snoozeTo, reason) {
     snoozedBy: CURRENT_USER ? CURRENT_USER.displayName : 'Unknown',
     snoozedAt: new Date().toISOString()
   });
-  saveData(DATA);
+  api('/snoozes', { method: 'POST', body: JSON.stringify({ obligationId, dueDate, snoozeTo, reason }) })
+    .catch(e => console.error('API addSnooze error:', e));
 }
 
 function unsnooze(obligationId, dueDate) {
   if (!DATA.snoozes) return;
   DATA.snoozes = DATA.snoozes.filter(s => !(s.obligationId === obligationId && s.dueDate === dueDate));
-  saveData(DATA);
+  api('/snoozes/' + obligationId + '/' + dueDate, { method: 'DELETE' })
+    .catch(e => console.error('API unsnooze error:', e));
   showToast('Snooze removed');
   refreshCurrentView();
 }
@@ -5456,41 +5495,46 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// Ensure teamFeed exists in data
-if (!DATA.teamFeed) { DATA.teamFeed = []; saveData(DATA); }
-
 // Initialize theme early (before login screen)
 loadTheme();
-
-// Check for existing session
-const existingSession = getSession();
-if (existingSession) {
-  const user = USERS.find(u => u.id === existingSession.userId);
-  if (user) {
-    CURRENT_USER = user;
-    onLoginSuccess();
-  }
-}
 
 // Initialize all features
 initGlobalSearch();
 initCalendar();
-if (CURRENT_USER) {
-  // Already logged in - dashboard was rendered by onLoginSuccess
-} else {
-  // Show login screen (already visible by default)
-}
-updateNotificationStatus();
-updateFaviconBadge();
 
-// Check notifications on load
-setTimeout(checkAndNotify, 2000);
+// Check for existing session via stored token
+(async function restoreSession() {
+  const existingSession = getSession();
+  if (existingSession && AUTH_TOKEN) {
+    try {
+      const res = await api('/auth/me');
+      CURRENT_USER = {
+        id: res.user.userId,
+        username: res.user.username,
+        role: res.user.role,
+        displayName: res.user.displayName,
+        technicianName: res.user.technicianName || ''
+      };
+      DATA = await loadDataFromAPI();
+      onLoginSuccess();
+    } catch (e) {
+      console.log('Session expired, showing login');
+      clearSession();
+    }
+  }
 
-// Periodic notification check (every 30 min)
-setInterval(checkAndNotify, 1800000);
+  updateNotificationStatus();
+  updateFaviconBadge();
 
-// Update favicon badge periodically (every 5 min)
-setInterval(updateFaviconBadge, 300000);
+  // Check notifications on load
+  setTimeout(checkAndNotify, 2000);
+
+  // Periodic notification check (every 30 min)
+  setInterval(checkAndNotify, 1800000);
+
+  // Update favicon badge periodically (every 5 min)
+  setInterval(updateFaviconBadge, 300000);
+})();
 </script>
 </body>
 </html>
