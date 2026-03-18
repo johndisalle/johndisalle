@@ -1478,6 +1478,174 @@ body.role-admin .admin-only-grid { display: grid !important; }
   font-size: 0.9rem;
 }
 .my-view-banner strong { color: var(--primary); }
+
+/* ========== SNOOZE BADGE ========== */
+.badge-snooze {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+[data-theme="dark"] .badge-snooze {
+  background: #2e1065;
+  color: #a78bfa;
+}
+.snooze-reason {
+  font-size: 0.75rem;
+  color: #7c3aed;
+  font-style: italic;
+  margin-top: 2px;
+}
+.snooze-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #ede9fe;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  color: #7c3aed;
+  margin-top: 4px;
+}
+[data-theme="dark"] .snooze-info {
+  background: #2e1065;
+  color: #a78bfa;
+}
+
+/* ========== QUICK ACTION IMPROVEMENTS ========== */
+.quick-action-card {
+  position: relative;
+  overflow: hidden;
+}
+.quick-action-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: var(--success-bg);
+  transition: width 0.4s ease;
+  z-index: 0;
+}
+.quick-action-card.completing::before {
+  width: 100%;
+}
+.quick-action-card > * {
+  position: relative;
+  z-index: 1;
+}
+.qa-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.qa-snooze-btn {
+  background: none;
+  border: 1px solid #7c3aed;
+  color: #7c3aed;
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  font-family: var(--font);
+}
+.qa-snooze-btn:hover { background: #ede9fe; }
+.qa-snooze-btn:active { transform: scale(0.95); }
+
+/* ========== ICS EXPORT BUTTON ========== */
+.ics-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font);
+}
+.ics-export-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
+
+/* ========== KEYBOARD SHORTCUT HINTS ========== */
+.kbd-hint {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: var(--gray-50);
+  font-family: monospace;
+  margin-left: 4px;
+}
+
+/* ========== STREAK / PROGRESS INDICATORS ========== */
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--success);
+  padding: 2px 8px;
+  background: var(--success-bg);
+  border-radius: 12px;
+}
+.progress-ring {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.progress-ring-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.75rem;
+  color: white;
+}
+
+/* ========== TODAY SUMMARY CARD ========== */
+.today-summary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--dove-dark) 100%);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  color: white;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.today-summary h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+.today-summary .today-greeting { opacity: 0.85; font-size: 0.9rem; }
+.today-summary .today-stats {
+  display: flex;
+  gap: 20px;
+}
+.today-summary .today-stat {
+  text-align: center;
+}
+.today-summary .today-stat-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+.today-summary .today-stat-lbl {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
 </style>
 </head>
 <body>
@@ -1638,12 +1806,17 @@ body.role-admin .admin-only-grid { display: grid !important; }
 
   <!-- ========== QUICK ACTIONS (Mobile-First) ========== -->
   <div id="view-quick-actions" class="view">
+    <div id="qa-today-summary"></div>
     <div class="quick-action-header">
       <h2>Quick Actions</h2>
-      <select class="quick-action-tech-select" id="qa-tech-filter" onchange="renderQuickActions()">
-        <option value="">All Techs</option>
-      </select>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="ics-export-btn" id="qa-export-schedule" onclick="exportMyScheduleICS()" title="Export your schedule to phone calendar">&#128197; Export My Schedule</button>
+        <select class="quick-action-tech-select" id="qa-tech-filter" onchange="renderQuickActions()">
+          <option value="">All Techs</option>
+        </select>
+      </div>
     </div>
+    <div id="qa-snoozed-container"></div>
     <div id="qa-onsite-container"></div>
     <div class="quick-action-list" id="qa-list"></div>
     <div id="qa-empty"></div>
@@ -1704,6 +1877,7 @@ body.role-admin .admin-only-grid { display: grid !important; }
       <h2 id="calendar-title"></h2>
       <button class="btn btn-outline btn-sm" onclick="changeMonth(1)">Next &rarr;</button>
       <button class="btn btn-outline btn-sm" onclick="goToToday()">Today</button>
+      <button class="ics-export-btn" onclick="exportOnsiteICS()" style="margin-left:auto" title="Export onsite visits to your phone calendar">&#128197; Export Onsites (.ics)</button>
     </div>
     <div class="calendar-grid" id="calendar-grid"></div>
     <div class="calendar-legend" id="calendar-legend"></div>
@@ -1861,7 +2035,7 @@ function generateId() {
 }
 
 function getDefaultData() {
-  return { clients: [], obligations: [], completions: [], technicians: [], activityLog: [], teamFeed: [] };
+  return { clients: [], obligations: [], completions: [], technicians: [], activityLog: [], teamFeed: [], snoozes: [] };
 }
 
 function loadData() {
@@ -2657,7 +2831,13 @@ function renderDashboard() {
     document.getElementById('overdue-table').innerHTML = '<div class="empty-state"><div class="empty-icon">&#10003;</div><p>No overdue obligations. Great job!</p></div>';
   } else {
     document.getElementById('overdue-table').innerHTML = `<table><thead><tr><th>Client</th><th>Obligation</th><th>Due Date</th><th>Days Overdue</th><th>Action</th></tr></thead><tbody>${
-      overdue.map(r => `<tr><td>${esc(r.client?.name || 'Unknown')}</td><td>${obTypeDot(r.obligation.obligationType)}${esc(r.obligation.title)}</td><td>${formatDate(r.dueDate)}</td><td><span class="badge badge-danger">${r.daysOverdue} days</span></td><td><button class="btn btn-success btn-sm" onclick="openCompleteModal('${r.obligation.id}','${r.dueDate}')">Complete</button></td></tr>`).join('')
+      overdue.map(r => {
+        const snooze = getSnooze(r.obligation.id, r.dueDate);
+        if (snooze) {
+          return `<tr style="opacity:0.6"><td>${esc(r.client?.name || 'Unknown')}</td><td>${obTypeDot(r.obligation.obligationType)}${esc(r.obligation.title)}</td><td>${formatDate(r.dueDate)}</td><td><span class="badge badge-snooze">Snoozed to ${formatDate(snooze.snoozeTo)}</span></td><td><button class="btn btn-outline btn-sm" onclick="unsnooze('${r.obligation.id}','${r.dueDate}')" title="Un-snooze">Wake</button></td></tr>`;
+        }
+        return `<tr><td>${esc(r.client?.name || 'Unknown')}</td><td>${obTypeDot(r.obligation.obligationType)}${esc(r.obligation.title)}</td><td>${formatDate(r.dueDate)}</td><td><span class="badge badge-danger">${r.daysOverdue} days</span></td><td><button class="btn btn-success btn-sm" onclick="openCompleteModal('${r.obligation.id}','${r.dueDate}')">Complete</button> <button class="btn btn-outline btn-sm" style="color:#7c3aed;border-color:#7c3aed" onclick="openSnoozeModal('${r.obligation.id}','${r.dueDate}')">Snooze</button></td></tr>`;
+      }).join('')
     }</tbody></table>`;
   }
 
@@ -2767,12 +2947,18 @@ function renderObligations() {
       const nextComp = nextDue ? getCompletion(ob.id, nextDue) : null;
       let status = '';
       if (nextComp) status = '<span class="badge badge-success">Done</span>';
-      else if (nextDue && nextDue < today) status = '<span class="badge badge-danger">Overdue</span>';
+      else if (nextDue && nextDue < today) {
+        const snooze = getSnooze(ob.id, nextDue);
+        status = snooze
+          ? `<span class="badge badge-snooze">Snoozed to ${formatDate(snooze.snoozeTo)}</span>`
+          : '<span class="badge badge-danger">Overdue</span>';
+      }
       else if (nextDue) status = '<span class="badge badge-info">Pending</span>';
       else status = '<span class="badge badge-gray">N/A</span>';
 
       const typeInfo = getObTypeInfo(ob.obligationType);
       const canComplete = nextDue && !nextComp;
+      const isOverdueUnsnoozed = nextDue && nextDue < today && !nextComp && !getSnooze(ob.id, nextDue);
       const isChecked = bulkSelection.has(ob.id + '|' + nextDue);
 
       return `<tr>
@@ -2785,6 +2971,7 @@ function renderObligations() {
         <td>${status}</td>
         <td>
           ${canComplete ? `<button class="btn btn-success btn-sm" onclick="openCompleteModal('${ob.id}','${nextDue}')">Complete</button>` : ''}
+          ${isOverdueUnsnoozed ? `<button class="btn btn-outline btn-sm" style="color:#7c3aed;border-color:#7c3aed;padding:2px 8px" onclick="openSnoozeModal('${ob.id}','${nextDue}')">Snooze</button>` : ''}
           ${isAdmin() ? `<button class="btn-icon" onclick="openModal('obligation','${ob.id}')" title="Edit">&#9998;</button>
           <button class="btn-icon danger" onclick="confirmDeleteObligation('${ob.id}')" title="Delete">&#128465;</button>` : ''}
         </td>
@@ -3490,6 +3677,13 @@ function refreshCurrentView() {
   if (active) switchView(active.dataset.view);
 }
 
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
 // ========================================================================
 // WORKLOAD VIEW
 // ========================================================================
@@ -4060,8 +4254,9 @@ function renderClientDetail(clientId) {
         <div class="compliance-bar" style="width:200px;margin-top:8px"><div class="compliance-bar-fill" style="width:${comp.pct}%;background:${barColor}"></div></div>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-outline btn-sm" onclick="openModal('client','${client.id}')">&#9998; Edit</button>
+        ${isAdmin() ? `<button class="btn btn-outline btn-sm" onclick="openModal('client','${client.id}')">&#9998; Edit</button>` : ''}
         <button class="btn btn-outline btn-sm" onclick="generateClientReport('${client.id}')">&#128424; Report</button>
+        <button class="ics-export-btn" onclick="exportClientICS('${client.id}')" title="Export to calendar">&#128197; .ics</button>
       </div>
     </div>
 
@@ -4386,7 +4581,67 @@ function renderQuickActions() {
     </button>`
   ).join('');
 
-  list.innerHTML = tasks.map(t => {
+  // Render today summary card
+  const todaySummary = document.getElementById('qa-today-summary');
+  const activeOverdue = tasks.filter(t => !t.isToday && !getSnooze(t.ob.id, t.dueDate));
+  const todayTasks = tasks.filter(t => t.isToday);
+  const snoozedCount = tasks.filter(t => getSnooze(t.ob.id, t.dueDate)).length;
+  const greeting = getGreeting();
+  const userName = CURRENT_USER ? CURRENT_USER.displayName.split(' ')[0] : '';
+  todaySummary.innerHTML = `<div class="today-summary">
+    <div>
+      <h2>${greeting}${userName ? ', ' + esc(userName) : ''}</h2>
+      <div class="today-greeting">${todayTasks.length === 0 && activeOverdue.length === 0 ? "You're all caught up! Nothing due." : `You have ${todayTasks.length + activeOverdue.length} task${(todayTasks.length + activeOverdue.length) !== 1 ? 's' : ''} to tackle.`}</div>
+    </div>
+    <div class="today-stats">
+      <div class="today-stat"><div class="today-stat-val">${todayTasks.length}</div><div class="today-stat-lbl">Due Today</div></div>
+      <div class="today-stat"><div class="today-stat-val" style="${activeOverdue.length > 0 ? 'color:#fca5a5' : ''}">${activeOverdue.length}</div><div class="today-stat-lbl">Overdue</div></div>
+      ${snoozedCount > 0 ? `<div class="today-stat"><div class="today-stat-val" style="color:#c4b5fd">${snoozedCount}</div><div class="today-stat-lbl">Snoozed</div></div>` : ''}
+    </div>
+  </div>`;
+
+  // Render snoozed items (collapsed)
+  const snoozedContainer = document.getElementById('qa-snoozed-container');
+  const snoozedTasks = tasks.filter(t => getSnooze(t.ob.id, t.dueDate));
+  if (snoozedTasks.length > 0) {
+    snoozedContainer.innerHTML = `<div style="margin-bottom:12px">
+      <button class="btn btn-outline btn-sm" style="color:#7c3aed;border-color:#7c3aed" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.textContent=this.nextElementSibling.style.display==='none'?'Show ${snoozedTasks.length} Snoozed':'Hide Snoozed'">Show ${snoozedTasks.length} Snoozed</button>
+      <div style="display:none;margin-top:8px">
+        ${snoozedTasks.map(t => {
+          const snooze = getSnooze(t.ob.id, t.dueDate);
+          return `<div class="quick-action-card" style="opacity:0.6;border:1px dashed #7c3aed">
+            <div style="border-left:3px solid #7c3aed;padding-left:10px" class="qa-info">
+              <div class="qa-client">${esc(t.client.name)}</div>
+              <div class="qa-title">${esc(t.ob.title)}</div>
+              <div class="snooze-info">Snoozed to ${formatDate(snooze.snoozeTo)}${snooze.reason ? ' &mdash; ' + esc(snooze.reason) : ''}</div>
+            </div>
+            <div class="qa-actions">
+              <button class="btn btn-outline btn-sm" onclick="unsnooze('${t.ob.id}','${t.dueDate}')">Wake</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  } else {
+    snoozedContainer.innerHTML = '';
+  }
+
+  // Filter out snoozed from main list
+  const activeTasks = tasks.filter(t => !getSnooze(t.ob.id, t.dueDate));
+
+  if (activeTasks.length === 0 && snoozedTasks.length > 0) {
+    list.innerHTML = '';
+    empty.innerHTML = '<div class="empty-state" style="padding:40px 20px"><div class="empty-icon">&#128564;</div><p>All remaining tasks are snoozed. Nice work!</p></div>';
+    return;
+  }
+
+  if (activeTasks.length === 0) {
+    list.innerHTML = '';
+    // empty was already handled above
+    return;
+  }
+
+  list.innerHTML = activeTasks.map(t => {
     const key = t.ob.id + '|' + t.dueDate;
     const justCompleted = qaCompletedSet.has(key);
     const dueLabel = t.isToday ? 'Due today'
@@ -4400,9 +4655,12 @@ function renderQuickActions() {
         <div class="qa-title">${esc(t.ob.title)}</div>
         <div class="qa-due ${dueClass}">${dueLabel}</div>
       </div>
-      <button class="quick-action-done ${justCompleted ? 'completed' : ''}" onclick="quickComplete('${t.ob.id}','${t.dueDate}',this)">
-        ${justCompleted ? 'Done!' : 'Done'}
-      </button>
+      <div class="qa-actions">
+        ${!t.isToday ? `<button class="qa-snooze-btn" onclick="event.stopPropagation();openSnoozeModal('${t.ob.id}','${t.dueDate}')">Snooze</button>` : ''}
+        <button class="quick-action-done ${justCompleted ? 'completed' : ''}" onclick="quickComplete('${t.ob.id}','${t.dueDate}',this)">
+          ${justCompleted ? 'Done!' : 'Done'}
+        </button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -4437,12 +4695,14 @@ function quickComplete(obId, dueDate, btnEl) {
   // Add to team feed
   addTeamFeedEntry(completedBy, obId, dueDate);
 
-  // Visual feedback
+  // Visual feedback with animation
   const key = obId + '|' + dueDate;
   qaCompletedSet.add(key);
   if (btnEl) {
     btnEl.textContent = 'Done!';
     btnEl.classList.add('completed');
+    const card = btnEl.closest('.quick-action-card');
+    if (card) card.classList.add('completing');
   }
 
   showToast('Marked complete!', 'success');
@@ -4537,7 +4797,7 @@ function renderTeamFeed() {
     return `<div class="feed-item">
       <div class="feed-avatar">${esc(initials)}</div>
       <div class="feed-content">
-        <div class="feed-action"><strong>${esc(e.tech)}</strong> completed ${obTypeDot(e.obligationType)}<strong>${esc(e.obligationTitle)}</strong> for <strong>${esc(e.clientName)}</strong></div>
+        <div class="feed-action"><strong>${esc(e.tech)}</strong> ${e.action === 'snoozed' ? 'snoozed' : e.action === 'cover' ? 'is covering' : 'completed'} ${obTypeDot(e.obligationType)}<strong>${esc(e.obligationTitle)}</strong> for <strong>${esc(e.clientName)}</strong></div>
         <div class="feed-time">${timeAgo}</div>
       </div>
     </div>`;
@@ -4880,14 +5140,352 @@ function updateTabBadge() {
 }
 
 // ========================================================================
+// SNOOZE / RESCHEDULE
+// ========================================================================
+function getSnoozes() {
+  if (!DATA.snoozes) { DATA.snoozes = []; saveData(DATA); }
+  return DATA.snoozes;
+}
+
+function getSnooze(obligationId, dueDate) {
+  const snoozes = getSnoozes();
+  const today = todayStr();
+  return snoozes.find(s => s.obligationId === obligationId && s.dueDate === dueDate && s.snoozeTo >= today);
+}
+
+function addSnooze(obligationId, dueDate, snoozeTo, reason) {
+  if (!DATA.snoozes) DATA.snoozes = [];
+  // Remove any existing snooze for this item
+  DATA.snoozes = DATA.snoozes.filter(s => !(s.obligationId === obligationId && s.dueDate === dueDate));
+  DATA.snoozes.push({
+    id: generateId(),
+    obligationId,
+    dueDate,
+    snoozeTo,
+    reason: reason || '',
+    snoozedBy: CURRENT_USER ? CURRENT_USER.displayName : 'Unknown',
+    snoozedAt: new Date().toISOString()
+  });
+  saveData(DATA);
+}
+
+function unsnooze(obligationId, dueDate) {
+  if (!DATA.snoozes) return;
+  DATA.snoozes = DATA.snoozes.filter(s => !(s.obligationId === obligationId && s.dueDate === dueDate));
+  saveData(DATA);
+  showToast('Snooze removed');
+  refreshCurrentView();
+}
+
+function openSnoozeModal(obligationId, dueDate) {
+  const ob = DATA.obligations.find(x => x.id === obligationId);
+  const client = ob ? DATA.clients.find(c => c.id === ob.clientId) : null;
+
+  const overlay = document.getElementById('modal-overlay');
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  const footer = document.getElementById('modal-footer');
+
+  title.textContent = 'Snooze / Reschedule';
+
+  // Quick snooze options
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+  const in3Days = new Date(); in3Days.setDate(in3Days.getDate() + 3);
+  const nextWeek = new Date(); nextWeek.setDate(nextWeek.getDate() + 7);
+  const nextMonday = new Date();
+  nextMonday.setDate(nextMonday.getDate() + ((1 + 7 - nextMonday.getDay()) % 7 || 7));
+
+  body.innerHTML = `
+    <div class="form-group"><label>Client</label><div class="form-control" style="background:var(--gray-50)">${esc(client?.name || 'Unknown')}</div></div>
+    <div class="form-group"><label>Obligation</label><div class="form-control" style="background:var(--gray-50)">${esc(ob?.title || '')} &mdash; due ${formatDate(dueDate)}</div></div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:0.85rem;font-weight:600;color:var(--gray-700);margin-bottom:8px;display:block">Quick Snooze</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('f-snooze-date').value='${dateStr(tomorrow)}'">Tomorrow</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('f-snooze-date').value='${dateStr(in3Days)}'">3 Days</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('f-snooze-date').value='${dateStr(nextWeek)}'">1 Week</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('f-snooze-date').value='${dateStr(nextMonday)}'">Next Monday</button>
+      </div>
+    </div>
+    <div class="form-group"><label>Snooze Until *</label><input class="form-control" type="date" id="f-snooze-date" min="${todayStr()}" value="${dateStr(tomorrow)}"></div>
+    <div class="form-group"><label>Reason</label><input class="form-control" id="f-snooze-reason" placeholder="e.g. Waiting on parts, client reschedule..."></div>
+  `;
+  footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" style="background:#7c3aed;border-color:#7c3aed" onclick="saveSnooze('${obligationId}','${dueDate}')">Snooze</button>`;
+  overlay.classList.add('open');
+  setTimeout(() => document.getElementById('f-snooze-reason')?.focus(), 100);
+}
+
+function saveSnooze(obligationId, dueDate) {
+  const snoozeTo = document.getElementById('f-snooze-date').value;
+  const reason = document.getElementById('f-snooze-reason').value.trim();
+
+  if (!snoozeTo) {
+    showToast('Please select a snooze date', 'danger');
+    return;
+  }
+
+  if (snoozeTo <= todayStr()) {
+    showToast('Snooze date must be in the future', 'danger');
+    return;
+  }
+
+  addSnooze(obligationId, dueDate, snoozeTo, reason);
+
+  // Log to team feed
+  const ob = DATA.obligations.find(o => o.id === obligationId);
+  const client = ob ? DATA.clients.find(c => c.id === ob.clientId) : null;
+  if (!DATA.teamFeed) DATA.teamFeed = [];
+  DATA.teamFeed.push({
+    id: generateId(),
+    tech: CURRENT_USER ? CURRENT_USER.displayName : 'Unknown',
+    action: 'snoozed',
+    obligationTitle: ob?.title || 'Unknown',
+    clientName: client?.name || 'Unknown',
+    obligationType: ob?.obligationType || 'custom',
+    timestamp: new Date().toISOString()
+  });
+  saveData(DATA);
+
+  showToast(`Snoozed until ${formatDate(snoozeTo)}`, 'success');
+  closeModal();
+  refreshCurrentView();
+}
+
+// Filter snoozed items out of overdue by default
+function getActiveOverdue() {
+  return getAllOverdue().filter(r => !getSnooze(r.obligation.id, r.dueDate));
+}
+
+function getSnoozedItems() {
+  const snoozes = getSnoozes();
+  const today = todayStr();
+  return snoozes.filter(s => s.snoozeTo >= today).map(s => {
+    const ob = DATA.obligations.find(o => o.id === s.obligationId);
+    const client = ob ? DATA.clients.find(c => c.id === ob.clientId) : null;
+    return { ...s, obligation: ob, client };
+  }).filter(s => s.obligation);
+}
+
+// ========================================================================
+// ICS CALENDAR EXPORT
+// ========================================================================
+function escICS(str) {
+  return (str || '').replace(/[\\;,\n]/g, function(match) {
+    if (match === '\n') return '\\n';
+    return '\\' + match;
+  });
+}
+
+function formatICSDate(dateString) {
+  // Format: YYYYMMDD for all-day events
+  return dateString.replace(/-/g, '');
+}
+
+function generateICSEvent(uid, summary, description, dateStr, location) {
+  const dtStart = formatICSDate(dateStr);
+  const dtEnd = formatICSDate(dateStr); // Same day for all-day events
+  return [
+    'BEGIN:VEVENT',
+    `UID:${uid}@doveit-msp`,
+    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,
+    `DTSTART;VALUE=DATE:${dtStart}`,
+    `DTEND;VALUE=DATE:${dtEnd}`,
+    `SUMMARY:${escICS(summary)}`,
+    description ? `DESCRIPTION:${escICS(description)}` : '',
+    location ? `LOCATION:${escICS(location)}` : '',
+    `STATUS:CONFIRMED`,
+    'END:VEVENT'
+  ].filter(Boolean).join('\r\n');
+}
+
+function exportOnsiteICS() {
+  // Get all onsite_visit obligations and generate events for the next 3 months
+  const now = new Date();
+  const threeMonthsOut = new Date(now);
+  threeMonthsOut.setMonth(threeMonthsOut.getMonth() + 3);
+
+  const visibleObs = getVisibleObligations();
+  const onsiteObs = visibleObs.filter(ob => ob.obligationType === 'onsite_visit');
+
+  if (onsiteObs.length === 0) {
+    showToast('No onsite visit obligations found', 'danger');
+    return;
+  }
+
+  let events = [];
+  onsiteObs.forEach(ob => {
+    const client = DATA.clients.find(c => c.id === ob.clientId);
+    const instances = getInstancesInRange(ob, now, threeMonthsOut);
+    instances.forEach(d => {
+      const uid = ob.id + '-' + d;
+      const summary = `Onsite: ${client?.name || 'Client'} - ${ob.title}`;
+      const desc = [
+        ob.description || '',
+        client?.contactEmail ? `Contact: ${client.contactEmail}` : '',
+        client?.contactPhone ? `Phone: ${client.contactPhone}` : '',
+        client?.primaryTech ? `Tech: ${client.primaryTech}` : ''
+      ].filter(Boolean).join('\\n');
+      const location = client?.region || '';
+      events.push(generateICSEvent(uid, summary, desc, d, location));
+    });
+  });
+
+  if (events.length === 0) {
+    showToast('No upcoming onsite visits in the next 3 months', 'danger');
+    return;
+  }
+
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Dove IT//MSP Compliance Tracker//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'X-WR-CALNAME:Dove IT Onsite Visits',
+    ...events,
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `doveit-onsites-${todayStr()}.ics`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`${events.length} onsite visit${events.length !== 1 ? 's' : ''} exported to .ics!`, 'success');
+}
+
+function exportClientICS(clientId) {
+  const client = DATA.clients.find(c => c.id === clientId);
+  if (!client) return;
+
+  const now = new Date();
+  const threeMonthsOut = new Date(now);
+  threeMonthsOut.setMonth(threeMonthsOut.getMonth() + 3);
+
+  const obs = DATA.obligations.filter(o => o.clientId === clientId);
+  let events = [];
+
+  obs.forEach(ob => {
+    const instances = getInstancesInRange(ob, now, threeMonthsOut);
+    instances.forEach(d => {
+      const uid = ob.id + '-' + d;
+      const typeInfo = getObTypeInfo(ob.obligationType);
+      const summary = `${typeInfo.label}: ${client.name} - ${ob.title}`;
+      const desc = ob.description || '';
+      events.push(generateICSEvent(uid, summary, desc, d, client.region || ''));
+    });
+  });
+
+  if (events.length === 0) {
+    showToast('No upcoming obligations for this client', 'danger');
+    return;
+  }
+
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Dove IT//MSP Compliance Tracker//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    `X-WR-CALNAME:${escICS(client.name)} - Obligations`,
+    ...events,
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `doveit-${client.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-${todayStr()}.ics`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`${events.length} event${events.length !== 1 ? 's' : ''} exported!`, 'success');
+}
+
+function exportMyScheduleICS() {
+  const techName = getCurrentTechName();
+  if (!techName) {
+    showToast('No technician linked to your account', 'danger');
+    return;
+  }
+
+  const now = new Date();
+  const threeMonthsOut = new Date(now);
+  threeMonthsOut.setMonth(threeMonthsOut.getMonth() + 3);
+
+  const myClients = DATA.clients.filter(c => c.primaryTech === techName || c.secondaryTech === techName);
+  const myClientIds = myClients.map(c => c.id);
+  const myObs = DATA.obligations.filter(o => myClientIds.includes(o.clientId));
+
+  let events = [];
+  myObs.forEach(ob => {
+    const client = DATA.clients.find(c => c.id === ob.clientId);
+    const instances = getInstancesInRange(ob, now, threeMonthsOut);
+    instances.forEach(d => {
+      if (getCompletion(ob.id, d)) return; // Skip completed
+      const uid = ob.id + '-' + d;
+      const typeInfo = getObTypeInfo(ob.obligationType);
+      const summary = `${typeInfo.label}: ${client?.name || 'Client'} - ${ob.title}`;
+      const desc = [ob.description, client?.contactPhone ? `Phone: ${client.contactPhone}` : ''].filter(Boolean).join('\\n');
+      events.push(generateICSEvent(uid, summary, desc, d, client?.region || ''));
+    });
+  });
+
+  if (events.length === 0) {
+    showToast('No upcoming obligations on your schedule', 'danger');
+    return;
+  }
+
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Dove IT//MSP Compliance Tracker//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    `X-WR-CALNAME:My Schedule - ${escICS(techName)}`,
+    ...events,
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `my-schedule-${todayStr()}.ics`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`${events.length} event${events.length !== 1 ? 's' : ''} exported to calendar!`, 'success');
+}
+
+// ========================================================================
 // INIT
 // ========================================================================
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => switchView(tab.dataset.view));
 });
 
-// Keyboard: Escape closes modal
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+
+  // Don't fire shortcuts when typing in inputs
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+  // Navigation shortcuts (number keys)
+  if (e.key === '1') switchView('dashboard');
+  else if (e.key === '2') switchView('quick-actions');
+  else if (e.key === '3') switchView('clients');
+  else if (e.key === '4') switchView('obligations');
+  else if (e.key === '5') switchView('week-preview');
+  else if (e.key === '6') switchView('calendar');
+  // Cmd/Ctrl+K for search
+  else if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('global-search-input')?.focus();
+  }
+});
 
 // Ensure teamFeed exists in data
 if (!DATA.teamFeed) { DATA.teamFeed = []; saveData(DATA); }
