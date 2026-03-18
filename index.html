@@ -1016,6 +1016,282 @@ tbody tr { transition: background 0.15s ease; }
   .client-grid { grid-template-columns: 1fr; }
   .global-search { display: none; }
   .workload-grid { grid-template-columns: 1fr; }
+  /* Show mobile quick actions on small screens */
+  .mobile-quick-actions { display: block !important; }
+  .desktop-hide-mobile { display: none; }
+}
+
+/* ========== MOBILE QUICK ACTIONS ========== */
+.mobile-quick-actions {
+  display: none;
+}
+.quick-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.quick-action-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.15s;
+  animation: fadeInUp 0.3s ease-out both;
+}
+.quick-action-card:nth-child(odd) { animation-delay: 0.05s; }
+.quick-action-card:nth-child(even) { animation-delay: 0.1s; }
+.quick-action-card .qa-info {
+  flex: 1;
+  min-width: 0;
+}
+.quick-action-card .qa-client {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.quick-action-card .qa-title {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.quick-action-card .qa-due {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.quick-action-card .qa-due.overdue { color: var(--danger); font-weight: 600; }
+.quick-action-card .qa-due.today { color: var(--warning); font-weight: 600; }
+.quick-action-done {
+  background: var(--success);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  font-family: var(--font);
+  min-width: 80px;
+}
+.quick-action-done:hover { background: #15803d; }
+.quick-action-done:active { transform: scale(0.95); }
+.quick-action-done.completed {
+  background: var(--gray-300);
+  color: var(--gray-600);
+  pointer-events: none;
+}
+.quick-action-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.quick-action-header h2 { font-size: 1.2rem; font-weight: 700; }
+.quick-action-tech-select {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+.qa-onsite-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 16px;
+  font-family: var(--font);
+  transition: all 0.15s;
+}
+.qa-onsite-btn:hover { background: var(--primary-dark); }
+.qa-onsite-btn:active { transform: scale(0.98); }
+
+/* ========== COVER ME MODE ========== */
+.cover-me-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+.cover-me-tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.cover-me-card {
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.cover-me-card:hover { border-color: var(--primary); background: var(--primary-bg); }
+.cover-me-card.selected { border-color: var(--primary); background: var(--primary-bg); }
+.cover-me-card .cm-name { font-weight: 700; font-size: 1rem; }
+.cover-me-card .cm-clients { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+/* ========== WEEK PREVIEW ========== */
+.week-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+@media (max-width: 768px) {
+  .week-preview-grid { grid-template-columns: 1fr; }
+}
+.week-day-column {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  min-height: 120px;
+}
+.week-day-column.today { border-color: var(--primary); border-width: 2px; }
+.week-day-header {
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--gray-50);
+  color: var(--text-secondary);
+}
+.week-day-column.today .week-day-header {
+  background: var(--primary);
+  color: white;
+}
+.week-day-header .wdh-date {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.week-day-items {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.week-day-item {
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  padding: 8px;
+  font-size: 0.8rem;
+  border-left: 3px solid var(--primary);
+}
+.week-day-item.completed { border-left-color: var(--success); opacity: 0.6; }
+.week-day-item.overdue { border-left-color: var(--danger); background: var(--danger-bg); }
+.week-day-item .wdi-client { font-weight: 600; }
+.week-day-item .wdi-title { color: var(--text-secondary); font-size: 0.75rem; }
+.week-day-empty {
+  padding: 12px 8px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.week-nav h2 { font-size: 1.1rem; font-weight: 600; }
+
+/* ========== TEAM ACTIVITY FEED ========== */
+.team-feed {
+  max-height: 500px;
+  overflow-y: auto;
+}
+.feed-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  animation: fadeInUp 0.25s ease-out;
+}
+.feed-item:last-child { border-bottom: none; }
+.feed-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+.feed-content { flex: 1; }
+.feed-content .feed-action { color: var(--text-primary); }
+.feed-content .feed-action strong { color: var(--primary); }
+.feed-content .feed-time { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ========== CLIENT HEALTH GRID ========== */
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.health-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  border-left: 4px solid var(--gray-300);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.health-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.health-card.health-green { border-left-color: var(--success); }
+.health-card.health-yellow { border-left-color: var(--warning); }
+.health-card.health-red { border-left-color: var(--danger); }
+.health-card .hc-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+.health-card .hc-pct { font-size: 1.5rem; font-weight: 800; }
+.health-card.health-green .hc-pct { color: var(--success); }
+.health-card.health-yellow .hc-pct { color: var(--warning); }
+.health-card.health-red .hc-pct { color: var(--danger); }
+.health-card .hc-detail { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+.health-card .hc-overdue { font-size: 0.75rem; color: var(--danger); font-weight: 600; }
+.health-summary {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.health-summary-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.health-summary-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
 }
 </style>
 </head>
@@ -1049,8 +1325,10 @@ tbody tr { transition: background 0.15s ease; }
   </div>
   <ul class="nav-tabs">
     <li><button class="nav-tab active" data-view="dashboard">Dashboard<span id="overdue-badge" class="nav-badge" style="display:none"></span></button></li>
+    <li><button class="nav-tab" data-view="quick-actions">Quick Actions</button></li>
     <li><button class="nav-tab" data-view="clients">Clients</button></li>
     <li><button class="nav-tab" data-view="obligations">Obligations</button></li>
+    <li><button class="nav-tab" data-view="week-preview">Week</button></li>
     <li><button class="nav-tab" data-view="workload">Workload</button></li>
     <li><button class="nav-tab" data-view="calendar">Calendar</button></li>
     <li><button class="nav-tab" data-view="settings">Settings</button></li>
@@ -1097,6 +1375,39 @@ tbody tr { transition: background 0.15s ease; }
       <div class="panel-header"><h2>Recently Completed</h2></div>
       <div class="panel-body" id="recent-table"></div>
     </div>
+
+    <!-- Client Health Overview -->
+    <div class="panel">
+      <div class="panel-header"><h2>Client Health</h2></div>
+      <div class="panel-body padded">
+        <div class="health-summary" id="health-summary"></div>
+        <div class="health-grid" id="health-grid"></div>
+      </div>
+    </div>
+
+    <!-- Team Activity Feed -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Team Activity Feed</h2>
+        <span style="font-size:0.8rem;color:var(--text-muted)" id="feed-count"></span>
+      </div>
+      <div class="panel-body">
+        <div class="team-feed" id="team-feed"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== QUICK ACTIONS (Mobile-First) ========== -->
+  <div id="view-quick-actions" class="view">
+    <div class="quick-action-header">
+      <h2>Quick Actions</h2>
+      <select class="quick-action-tech-select" id="qa-tech-filter" onchange="renderQuickActions()">
+        <option value="">All Techs</option>
+      </select>
+    </div>
+    <div id="qa-onsite-container"></div>
+    <div class="quick-action-list" id="qa-list"></div>
+    <div id="qa-empty"></div>
   </div>
 
   <!-- ========== CLIENTS ========== -->
@@ -1168,6 +1479,26 @@ tbody tr { transition: background 0.15s ease; }
     <div id="workload-empty"></div>
   </div>
 
+  <!-- ========== WEEK PREVIEW ========== -->
+  <div id="view-week-preview" class="view">
+    <div class="week-nav">
+      <button class="btn btn-outline btn-sm" onclick="changeWeek(-1)">&larr; Prev Week</button>
+      <h2 id="week-preview-title"></h2>
+      <button class="btn btn-outline btn-sm" onclick="changeWeek(1)">Next Week &rarr;</button>
+      <button class="btn btn-outline btn-sm" onclick="goToThisWeek()">This Week</button>
+      <select class="form-control" style="width:auto;margin-left:auto" id="week-tech-filter" onchange="renderWeekPreview()">
+        <option value="">All Technicians</option>
+      </select>
+    </div>
+    <div class="week-preview-grid" id="week-preview-grid"></div>
+  </div>
+
+  <!-- ========== TEAM ACTIVITY FEED ========== -->
+  <div id="view-team-feed" class="view" style="display:none"></div>
+
+  <!-- ========== CLIENT HEALTH ========== -->
+  <div id="view-client-health" class="view" style="display:none"></div>
+
   <!-- ========== SETTINGS ========== -->
   <div id="view-settings" class="view">
     <div class="panel">
@@ -1194,6 +1525,28 @@ tbody tr { transition: background 0.15s ease; }
           <button class="btn btn-outline" onclick="loadSampleData()">Load Sample Data</button>
           <span style="font-size:0.8rem;color:var(--gray-400);margin-left:8px">Loads example clients & obligations to try the app</span>
         </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h2>Cover Me Mode (PTO / Reassign)</h2></div>
+      <div class="panel-body padded">
+        <p style="font-size:0.85rem;color:var(--gray-500);margin-bottom:16px">Going on PTO? Temporarily reassign all your clients to a teammate with one click. This updates primary/secondary tech assignments so nothing falls through the cracks.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-bottom:16px">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Who's going out?</label>
+            <select class="form-control" id="cover-me-from" onchange="renderCoverMePreview()">
+              <option value="">Select technician...</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Who's covering?</label>
+            <select class="form-control" id="cover-me-to">
+              <option value="">Select replacement...</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="executeCoverMe()">Reassign Clients</button>
+        </div>
+        <div id="cover-me-preview"></div>
       </div>
     </div>
     <div class="panel">
@@ -1273,7 +1626,7 @@ function generateId() {
 }
 
 function getDefaultData() {
-  return { clients: [], obligations: [], completions: [], technicians: [], activityLog: [] };
+  return { clients: [], obligations: [], completions: [], technicians: [], activityLog: [], teamFeed: [] };
 }
 
 function loadData() {
@@ -1515,11 +1868,13 @@ function switchView(view) {
   if (tab) tab.classList.add('active');
 
   if (view === 'dashboard') renderDashboard();
+  else if (view === 'quick-actions') renderQuickActions();
   else if (view === 'clients') renderClients();
   else if (view === 'obligations') renderObligations();
+  else if (view === 'week-preview') renderWeekPreview();
   else if (view === 'workload') renderWorkload();
   else if (view === 'calendar') renderCalendar();
-  else if (view === 'settings') renderSettings();
+  else if (view === 'settings') { renderSettings(); renderCoverMe(); }
   // client-detail is rendered by openClientDetail()
 }
 
@@ -1606,6 +1961,11 @@ function renderDashboard() {
       recent.map(r => `<tr><td>${esc(r.client?.name || 'Unknown')}</td><td>${esc(r.obligation?.title || 'Deleted')}</td><td>${formatDate(r.dueDate)}</td><td>${esc(r.completedBy)}</td><td>${formatDateTime(r.completedAt)}</td><td><button class="btn btn-outline btn-sm btn-icon danger" onclick="undoCompletion('${r.id}')" title="Undo">&#8634;</button></td></tr>`).join('')
     }</tbody></table>`;
   }
+
+  // Render Client Health and Team Feed on dashboard
+  renderClientHealth();
+  renderTeamFeed();
+  updateFaviconBadge();
 }
 
 // --- CLIENTS ---
@@ -1835,11 +2195,13 @@ function saveBulkComplete() {
         completedBy,
         notes
       });
+      addTeamFeedEntry(completedBy, obId, due);
       count++;
     }
   });
 
   bulkSelection.clear();
+  updateFaviconBadge();
   showToast(`${count} obligation${count !== 1 ? 's' : ''} marked complete!`, 'success');
   closeModal();
   refreshCurrentView();
@@ -2203,6 +2565,10 @@ function saveCompletion(obligationId, dueDate) {
     completedBy,
     notes: document.getElementById('f-comp-notes').value.trim()
   });
+
+  // Add to team feed
+  addTeamFeedEntry(completedBy, obligationId, dueDate);
+  updateFaviconBadge();
 
   showToast('Marked as complete!', 'success');
   closeModal();
@@ -3173,6 +3539,581 @@ function renderClientDetailMiniCalendar(clientId) {
 }
 
 // ========================================================================
+// QUICK ACTIONS (Mobile-First)
+// ========================================================================
+let qaCompletedSet = new Set(); // Track just-completed items for visual feedback
+
+function renderQuickActions() {
+  const techFilter = document.getElementById('qa-tech-filter');
+  const curTech = techFilter.value;
+
+  // Populate tech filter
+  techFilter.innerHTML = '<option value="">All Techs</option>' + DATA.technicians.map(t => `<option value="${esc(t)}" ${curTech === t ? 'selected' : ''}>${esc(t)}</option>`).join('');
+  techFilter.value = curTech;
+
+  // Get today's and overdue tasks
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayS = todayStr();
+  const endOfDay = new Date(today); endOfDay.setDate(endOfDay.getDate() + 1);
+  const sixMonthsAgo = new Date(); sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+  let tasks = [];
+
+  DATA.obligations.forEach(ob => {
+    const client = DATA.clients.find(c => c.id === ob.clientId);
+    if (!client) return;
+
+    // Apply tech filter
+    if (curTech && client.primaryTech !== curTech && client.secondaryTech !== curTech) return;
+
+    // Get overdue instances
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    if (ob.recurrence === 'once' && ob.specificDate) {
+      if (ob.specificDate <= todayS && !getCompletion(ob.id, ob.specificDate)) {
+        const daysOverdue = Math.floor((new Date() - parseDate(ob.specificDate)) / 86400000);
+        tasks.push({ ob, client, dueDate: ob.specificDate, daysOverdue, isToday: ob.specificDate === todayS });
+      }
+    } else {
+      // Overdue
+      const overdueInstances = getInstancesInRange(ob, sixMonthsAgo, yesterday);
+      overdueInstances.forEach(d => {
+        if (!getCompletion(ob.id, d)) {
+          const daysOverdue = Math.floor((new Date() - parseDate(d)) / 86400000);
+          tasks.push({ ob, client, dueDate: d, daysOverdue, isToday: false });
+        }
+      });
+      // Today
+      const todayInstances = getInstancesInRange(ob, today, endOfDay);
+      todayInstances.forEach(d => {
+        if (!getCompletion(ob.id, d)) {
+          tasks.push({ ob, client, dueDate: d, daysOverdue: 0, isToday: true });
+        }
+      });
+    }
+  });
+
+  // Sort: overdue first (most overdue at top), then today
+  tasks.sort((a, b) => b.daysOverdue - a.daysOverdue || a.dueDate.localeCompare(b.dueDate));
+
+  const list = document.getElementById('qa-list');
+  const empty = document.getElementById('qa-empty');
+
+  if (tasks.length === 0) {
+    list.innerHTML = '';
+    empty.innerHTML = '<div class="empty-state" style="padding:60px 20px"><div class="empty-icon">&#10003;</div><p>All caught up! Nothing due today and no overdue items.</p></div>';
+    document.getElementById('qa-onsite-container').innerHTML = '';
+    return;
+  }
+  empty.innerHTML = '';
+
+  // Group by client for "I'm On-Site" buttons
+  const clientGroups = {};
+  tasks.forEach(t => {
+    if (!clientGroups[t.client.id]) clientGroups[t.client.id] = { client: t.client, tasks: [] };
+    clientGroups[t.client.id].tasks.push(t);
+  });
+
+  // Show "I'm On-Site at [Client]" buttons for clients with 2+ tasks
+  const onsiteClients = Object.values(clientGroups).filter(g => g.tasks.length >= 2);
+  document.getElementById('qa-onsite-container').innerHTML = onsiteClients.map(g =>
+    `<button class="qa-onsite-btn" onclick="quickCompleteAllForClient('${g.client.id}')">
+      I'm On-Site at ${esc(g.client.name)} (${g.tasks.length} tasks)
+    </button>`
+  ).join('');
+
+  list.innerHTML = tasks.map(t => {
+    const key = t.ob.id + '|' + t.dueDate;
+    const justCompleted = qaCompletedSet.has(key);
+    const dueLabel = t.isToday ? 'Due today'
+      : t.daysOverdue === 1 ? '1 day overdue'
+      : t.daysOverdue + ' days overdue';
+    const dueClass = t.isToday ? 'today' : 'overdue';
+
+    return `<div class="quick-action-card" id="qa-card-${key.replace('|','-')}">
+      <div style="border-left:3px solid ${getObTypeInfo(t.ob.obligationType).color};padding-left:10px" class="qa-info">
+        <div class="qa-client">${esc(t.client.name)}</div>
+        <div class="qa-title">${esc(t.ob.title)}</div>
+        <div class="qa-due ${dueClass}">${dueLabel}</div>
+      </div>
+      <button class="quick-action-done ${justCompleted ? 'completed' : ''}" onclick="quickComplete('${t.ob.id}','${t.dueDate}',this)">
+        ${justCompleted ? 'Done!' : 'Done'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function quickComplete(obId, dueDate, btnEl) {
+  if (getCompletion(obId, dueDate)) return;
+
+  // Determine the tech from the filter or the client's primary tech
+  const techFilter = document.getElementById('qa-tech-filter').value;
+  const ob = DATA.obligations.find(o => o.id === obId);
+  const client = ob ? DATA.clients.find(c => c.id === ob.clientId) : null;
+  let completedBy = techFilter || client?.primaryTech || '';
+
+  if (!completedBy && DATA.technicians.length > 0) {
+    completedBy = DATA.technicians[0];
+  }
+
+  if (!completedBy) {
+    // Fall back to modal if we can't determine who
+    openCompleteModal(obId, dueDate);
+    return;
+  }
+
+  addCompletion({
+    obligationId: obId,
+    dueDate,
+    completedAt: new Date().toISOString(),
+    completedBy,
+    notes: 'Quick action'
+  });
+
+  // Add to team feed
+  addTeamFeedEntry(completedBy, obId, dueDate);
+
+  // Visual feedback
+  const key = obId + '|' + dueDate;
+  qaCompletedSet.add(key);
+  if (btnEl) {
+    btnEl.textContent = 'Done!';
+    btnEl.classList.add('completed');
+  }
+
+  showToast('Marked complete!', 'success');
+  updateTabBadge();
+  updateFaviconBadge();
+
+  // Refresh after brief delay for visual feedback
+  setTimeout(() => {
+    qaCompletedSet.delete(key);
+    renderQuickActions();
+  }, 1500);
+}
+
+function quickCompleteAllForClient(clientId) {
+  const techFilter = document.getElementById('qa-tech-filter').value;
+  const client = DATA.clients.find(c => c.id === clientId);
+  let completedBy = techFilter || client?.primaryTech || '';
+  if (!completedBy && DATA.technicians.length > 0) completedBy = DATA.technicians[0];
+
+  if (!completedBy) {
+    showToast('Select a technician first', 'danger');
+    return;
+  }
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayS = todayStr();
+  const sixMonthsAgo = new Date(); sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const obs = DATA.obligations.filter(o => o.clientId === clientId);
+  let count = 0;
+
+  obs.forEach(ob => {
+    const endOfDay = new Date(today); endOfDay.setDate(endOfDay.getDate() + 1);
+    let instances = [];
+    if (ob.recurrence === 'once' && ob.specificDate) {
+      if (ob.specificDate <= todayS) instances.push(ob.specificDate);
+    } else {
+      instances = [...getInstancesInRange(ob, sixMonthsAgo, new Date()), ...getInstancesInRange(ob, today, endOfDay)];
+    }
+    instances.forEach(d => {
+      if (!getCompletion(ob.id, d)) {
+        addCompletion({ obligationId: ob.id, dueDate: d, completedAt: new Date().toISOString(), completedBy, notes: 'On-site quick action' });
+        addTeamFeedEntry(completedBy, ob.id, d);
+        count++;
+      }
+    });
+  });
+
+  showToast(`${count} task${count !== 1 ? 's' : ''} at ${client.name} marked complete!`, 'success');
+  updateTabBadge();
+  updateFaviconBadge();
+  renderQuickActions();
+}
+
+// ========================================================================
+// TEAM ACTIVITY FEED
+// ========================================================================
+function addTeamFeedEntry(techName, obligationId, dueDate) {
+  if (!DATA.teamFeed) DATA.teamFeed = [];
+  const ob = DATA.obligations.find(o => o.id === obligationId);
+  const client = ob ? DATA.clients.find(c => c.id === ob.clientId) : null;
+  DATA.teamFeed.push({
+    id: generateId(),
+    tech: techName,
+    action: 'completed',
+    obligationTitle: ob?.title || 'Unknown',
+    clientName: client?.name || 'Unknown',
+    obligationType: ob?.obligationType || 'custom',
+    timestamp: new Date().toISOString()
+  });
+  // Keep feed to last 100 entries
+  if (DATA.teamFeed.length > 100) DATA.teamFeed = DATA.teamFeed.slice(-100);
+  saveData(DATA);
+}
+
+function renderTeamFeed() {
+  const feed = document.getElementById('team-feed');
+  const countEl = document.getElementById('feed-count');
+  if (!feed) return;
+
+  const entries = (DATA.teamFeed || []).slice().reverse().slice(0, 30);
+  countEl.textContent = entries.length > 0 ? `Last ${entries.length} actions` : '';
+
+  if (entries.length === 0) {
+    feed.innerHTML = '<div class="empty-state" style="padding:30px"><p>No team activity yet. Complete some tasks to see the feed!</p></div>';
+    return;
+  }
+
+  feed.innerHTML = entries.map(e => {
+    const initials = e.tech.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const timeAgo = getTimeAgo(new Date(e.timestamp));
+    const typeInfo = getObTypeInfo(e.obligationType);
+    return `<div class="feed-item">
+      <div class="feed-avatar">${esc(initials)}</div>
+      <div class="feed-content">
+        <div class="feed-action"><strong>${esc(e.tech)}</strong> completed ${obTypeDot(e.obligationType)}<strong>${esc(e.obligationTitle)}</strong> for <strong>${esc(e.clientName)}</strong></div>
+        <div class="feed-time">${timeAgo}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function getTimeAgo(date) {
+  const now = new Date();
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+  if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+  return formatDate(dateStr(date));
+}
+
+// ========================================================================
+// CLIENT HEALTH OVERVIEW
+// ========================================================================
+function renderClientHealth() {
+  const grid = document.getElementById('health-grid');
+  const summary = document.getElementById('health-summary');
+  if (!grid || !summary) return;
+
+  if (DATA.clients.length === 0) {
+    grid.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;grid-column:1/-1">No clients yet</div>';
+    summary.innerHTML = '';
+    return;
+  }
+
+  const healthData = DATA.clients.map(c => {
+    const comp = getClientCompliance(c.id);
+    // Count overdue for this client
+    const obs = DATA.obligations.filter(o => o.clientId === c.id);
+    const today = todayStr();
+    let overdueCount = 0;
+    const sixMonthsAgo = new Date(); sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    obs.forEach(ob => {
+      if (ob.recurrence === 'once' && ob.specificDate) {
+        if (ob.specificDate < today && !getCompletion(ob.id, ob.specificDate)) overdueCount++;
+      } else {
+        getInstancesInRange(ob, sixMonthsAgo, yesterday).forEach(d => {
+          if (d < today && !getCompletion(ob.id, d)) overdueCount++;
+        });
+      }
+    });
+
+    const health = comp.pct >= 80 ? 'green' : comp.pct >= 50 ? 'yellow' : 'red';
+    return { client: c, comp, overdueCount, health };
+  });
+
+  // Sort: red first, then yellow, then green
+  const order = { red: 0, yellow: 1, green: 2 };
+  healthData.sort((a, b) => order[a.health] - order[b.health] || a.comp.pct - b.comp.pct);
+
+  // Summary counts
+  const greenCount = healthData.filter(h => h.health === 'green').length;
+  const yellowCount = healthData.filter(h => h.health === 'yellow').length;
+  const redCount = healthData.filter(h => h.health === 'red').length;
+
+  summary.innerHTML = `
+    <div class="health-summary-item"><div class="health-summary-dot" style="background:var(--success)"></div>${greenCount} Healthy</div>
+    <div class="health-summary-item"><div class="health-summary-dot" style="background:var(--warning)"></div>${yellowCount} At Risk</div>
+    <div class="health-summary-item"><div class="health-summary-dot" style="background:var(--danger)"></div>${redCount} Critical</div>
+  `;
+
+  grid.innerHTML = healthData.map(h => `
+    <div class="health-card health-${h.health}" onclick="openClientDetail('${h.client.id}')">
+      <div class="hc-name">${esc(h.client.name)}</div>
+      <div class="hc-pct">${h.comp.pct}%</div>
+      <div class="hc-detail">${h.comp.done}/${h.comp.total} this month</div>
+      ${h.overdueCount > 0 ? `<div class="hc-overdue">${h.overdueCount} overdue</div>` : ''}
+      ${h.client.primaryTech ? `<div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px">${esc(h.client.primaryTech)}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ========================================================================
+// WEEK PREVIEW
+// ========================================================================
+let weekOffset = 0;
+
+function changeWeek(delta) { weekOffset += delta; renderWeekPreview(); }
+function goToThisWeek() { weekOffset = 0; renderWeekPreview(); }
+
+function renderWeekPreview() {
+  const techFilter = document.getElementById('week-tech-filter');
+  const curTech = techFilter ? techFilter.value : '';
+
+  // Populate tech filter
+  if (techFilter) {
+    techFilter.innerHTML = '<option value="">All Technicians</option>' + DATA.technicians.map(t => `<option value="${esc(t)}" ${curTech === t ? 'selected' : ''}>${esc(t)}</option>`).join('');
+    techFilter.value = curTech;
+  }
+
+  // Calculate week start (Monday)
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayS = todayStr();
+  const dayOfWeek = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(monday.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1) + (weekOffset * 7));
+
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(d.getDate() + i);
+    days.push(d);
+  }
+
+  const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  // Title
+  const weekStart = days[0];
+  const weekEnd = days[6];
+  const titleEl = document.getElementById('week-preview-title');
+  if (titleEl) {
+    titleEl.textContent = `${monthNames[weekStart.getMonth()]} ${weekStart.getDate()} - ${monthNames[weekEnd.getMonth()]} ${weekEnd.getDate()}, ${weekEnd.getFullYear()}`;
+  }
+
+  const grid = document.getElementById('week-preview-grid');
+  if (!grid) return;
+
+  grid.innerHTML = days.map((day, idx) => {
+    const ds = dateStr(day);
+    const isToday = ds === todayS;
+    const isPast = ds < todayS;
+
+    // Get obligations for this day
+    let items = [];
+    DATA.obligations.forEach(ob => {
+      const instances = getInstancesInRange(ob, ds, ds);
+      if (instances.includes(ds)) {
+        const client = DATA.clients.find(c => c.id === ob.clientId);
+        if (!client) return;
+        // Tech filter
+        if (curTech && client.primaryTech !== curTech && client.secondaryTech !== curTech) return;
+        const comp = getCompletion(ob.id, ds);
+        let status = 'pending';
+        if (comp) status = 'completed';
+        else if (isPast) status = 'overdue';
+        items.push({ ob, client, status, comp });
+      }
+    });
+
+    return `<div class="week-day-column ${isToday ? 'today' : ''}">
+      <div class="week-day-header">
+        ${dayNames[idx]}
+        <span class="wdh-date">${day.getDate()}</span>
+      </div>
+      <div class="week-day-items">
+        ${items.length === 0 ? '<div class="week-day-empty">No tasks</div>' :
+          items.map(i => `<div class="week-day-item ${i.status}" style="border-left-color:${getObTypeInfo(i.ob.obligationType).color}">
+            <div class="wdi-client">${esc(i.client.name)}</div>
+            <div class="wdi-title">${esc(i.ob.title)}</div>
+            ${i.status === 'completed' ? '<span class="badge badge-success" style="font-size:0.65rem">Done</span>' :
+              i.status === 'overdue' ? '<span class="badge badge-danger" style="font-size:0.65rem">Overdue</span>' :
+              `<button class="btn btn-success btn-sm" style="font-size:0.7rem;padding:2px 8px;margin-top:4px" onclick="openCompleteModal('${i.ob.id}','${dateStr(day)}')">Complete</button>`}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ========================================================================
+// COVER ME MODE (PTO Reassignment)
+// ========================================================================
+function renderCoverMe() {
+  const fromSelect = document.getElementById('cover-me-from');
+  const toSelect = document.getElementById('cover-me-to');
+  if (!fromSelect || !toSelect) return;
+
+  const curFrom = fromSelect.value;
+  const curTo = toSelect.value;
+
+  fromSelect.innerHTML = '<option value="">Select technician...</option>' + DATA.technicians.map(t => `<option value="${esc(t)}" ${curFrom === t ? 'selected' : ''}>${esc(t)}</option>`).join('');
+  fromSelect.value = curFrom;
+
+  toSelect.innerHTML = '<option value="">Select replacement...</option>' + DATA.technicians.filter(t => t !== curFrom).map(t => `<option value="${esc(t)}" ${curTo === t ? 'selected' : ''}>${esc(t)}</option>`).join('');
+  toSelect.value = curTo;
+}
+
+function renderCoverMePreview() {
+  const from = document.getElementById('cover-me-from').value;
+  const preview = document.getElementById('cover-me-preview');
+  if (!preview) return;
+
+  // Update "to" select to exclude "from"
+  const toSelect = document.getElementById('cover-me-to');
+  const curTo = toSelect.value;
+  toSelect.innerHTML = '<option value="">Select replacement...</option>' + DATA.technicians.filter(t => t !== from).map(t => `<option value="${esc(t)}" ${curTo === t ? 'selected' : ''}>${esc(t)}</option>`).join('');
+
+  if (!from) {
+    preview.innerHTML = '';
+    return;
+  }
+
+  const affected = DATA.clients.filter(c => c.primaryTech === from || c.secondaryTech === from);
+  if (affected.length === 0) {
+    preview.innerHTML = '<div style="font-size:0.85rem;color:var(--text-muted);margin-top:8px">No clients assigned to this technician.</div>';
+    return;
+  }
+
+  preview.innerHTML = `
+    <div style="margin-top:8px;font-size:0.85rem;color:var(--text-secondary)">
+      <strong>${affected.length} client${affected.length !== 1 ? 's' : ''}</strong> will be reassigned:
+    </div>
+    <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">
+      ${affected.map(c => {
+        const role = c.primaryTech === from ? 'Primary' : 'Secondary';
+        return `<span class="badge badge-info">${esc(c.name)} (${role})</span>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function executeCoverMe() {
+  const from = document.getElementById('cover-me-from').value;
+  const to = document.getElementById('cover-me-to').value;
+
+  if (!from || !to) {
+    showToast('Select both technicians', 'danger');
+    return;
+  }
+  if (from === to) {
+    showToast('Cannot reassign to the same person', 'danger');
+    return;
+  }
+
+  const affected = DATA.clients.filter(c => c.primaryTech === from || c.secondaryTech === from);
+  if (affected.length === 0) {
+    showToast('No clients to reassign', 'danger');
+    return;
+  }
+
+  if (!confirm(`Reassign ${affected.length} client(s) from ${from} to ${to}? This will update primary/secondary tech assignments.`)) return;
+
+  let count = 0;
+  affected.forEach(c => {
+    if (c.primaryTech === from) { c.primaryTech = to; count++; }
+    if (c.secondaryTech === from) { c.secondaryTech = to; count++; }
+  });
+  saveData(DATA);
+
+  // Log the cover me action in team feed
+  if (!DATA.teamFeed) DATA.teamFeed = [];
+  DATA.teamFeed.push({
+    id: generateId(),
+    tech: to,
+    action: 'cover',
+    obligationTitle: `Covering for ${from}`,
+    clientName: `${affected.length} clients`,
+    obligationType: 'custom',
+    timestamp: new Date().toISOString()
+  });
+  saveData(DATA);
+
+  showToast(`${count} assignment(s) transferred from ${from} to ${to}!`, 'success');
+  document.getElementById('cover-me-from').value = '';
+  document.getElementById('cover-me-to').value = '';
+  document.getElementById('cover-me-preview').innerHTML = '';
+  renderCoverMe();
+  refreshCurrentView();
+}
+
+// ========================================================================
+// BROWSER TAB NOTIFICATIONS (Favicon Badge)
+// ========================================================================
+let originalTitle = document.title;
+
+function updateFaviconBadge() {
+  const overdue = getAllOverdue();
+  const count = overdue.length;
+
+  // Update document title with badge count
+  if (count > 0) {
+    document.title = `(${count}) ${originalTitle}`;
+  } else {
+    document.title = originalTitle;
+  }
+
+  // Generate favicon with badge
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d');
+
+  // Draw base icon (dove blue circle)
+  ctx.fillStyle = '#4a6fa5';
+  ctx.beginPath();
+  ctx.arc(16, 16, 15, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Draw checkmark
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(9, 16);
+  ctx.lineTo(14, 21);
+  ctx.lineTo(23, 11);
+  ctx.stroke();
+
+  if (count > 0) {
+    // Draw red badge circle
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath();
+    ctx.arc(24, 8, 9, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Draw count text
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(count > 9 ? '9+' : count.toString(), 24, 8);
+  }
+
+  // Apply favicon
+  let link = document.querySelector('link[rel="icon"]');
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'icon';
+    document.head.appendChild(link);
+  }
+  link.href = canvas.toDataURL('image/png');
+}
+
+function updateTabBadge() {
+  const overdue = getAllOverdue();
+  const badge = document.getElementById('overdue-badge');
+  if (overdue.length > 0) {
+    badge.style.display = 'inline';
+    badge.textContent = overdue.length;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ========================================================================
 // INIT
 // ========================================================================
 document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -3182,18 +4123,25 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 // Keyboard: Escape closes modal
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+// Ensure teamFeed exists in data
+if (!DATA.teamFeed) { DATA.teamFeed = []; saveData(DATA); }
+
 // Initialize all features
 loadTheme();
 initGlobalSearch();
 initCalendar();
 renderDashboard();
 updateNotificationStatus();
+updateFaviconBadge();
 
 // Check notifications on load
 setTimeout(checkAndNotify, 2000);
 
 // Periodic notification check (every 30 min)
 setInterval(checkAndNotify, 1800000);
+
+// Update favicon badge periodically (every 5 min)
+setInterval(updateFaviconBadge, 300000);
 </script>
 </body>
 </html>
