@@ -1293,9 +1293,233 @@ tbody tr { transition: background 0.15s ease; }
   height: 12px;
   border-radius: 50%;
 }
+
+/* ========== LOGIN SCREEN ========== */
+.login-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, var(--dove-dark) 0%, var(--primary) 50%, #2c3e5a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 20px;
+}
+.login-overlay.hidden { display: none; }
+.login-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+}
+[data-theme="dark"] .login-card {
+  background: var(--card-bg);
+}
+.login-header {
+  background: linear-gradient(135deg, var(--dove-dark) 0%, var(--primary) 100%);
+  padding: 32px 32px 24px;
+  text-align: center;
+  color: white;
+}
+.login-header svg { height: 48px; width: auto; margin-bottom: 12px; }
+.login-header h1 { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+.login-header p { font-size: 0.85rem; opacity: 0.8; }
+.login-body { padding: 32px; }
+.login-body .form-group { margin-bottom: 20px; }
+.login-body .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--gray-700); margin-bottom: 6px; display: block; }
+.login-body .form-control { padding: 10px 14px; font-size: 0.95rem; }
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all 0.15s;
+}
+.login-btn:hover { background: var(--primary-dark); }
+.login-btn:active { transform: scale(0.98); }
+.login-error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+  display: none;
+}
+.login-error.visible { display: block; }
+.login-footer {
+  padding: 16px 32px 24px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--gray-400);
+}
+
+/* ========== USER MENU (Navbar) ========== */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+  position: relative;
+}
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.3);
+  transition: all 0.15s;
+}
+.user-avatar:hover { background: rgba(255,255,255,0.3); }
+.user-info {
+  color: white;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.user-info .user-name { font-weight: 600; }
+.user-info .user-role {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  min-width: 180px;
+  z-index: 300;
+  margin-top: 8px;
+  display: none;
+  color: var(--text-primary);
+}
+.user-dropdown.open { display: block; }
+.user-dropdown-item {
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.1s;
+}
+.user-dropdown-item:last-child { border-bottom: none; }
+.user-dropdown-item:hover { background: var(--gray-50); }
+.user-dropdown-item.danger { color: var(--danger); }
+.user-dropdown-item.danger:hover { background: var(--danger-bg); }
+
+/* ========== ADMIN-ONLY MARKERS ========== */
+.admin-only { display: none; }
+body.role-admin .admin-only { display: initial; }
+body.role-admin .admin-only-flex { display: flex; }
+body.role-admin .admin-only-inline { display: inline; }
+body.role-admin .admin-only-block { display: block; }
+body.role-admin .admin-only-grid { display: grid; }
+
+/* ========== USER MANAGEMENT (Settings) ========== */
+.user-mgmt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.user-mgmt-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.user-mgmt-card .umc-info { flex: 1; }
+.user-mgmt-card .umc-name { font-weight: 600; font-size: 0.95rem; }
+.user-mgmt-card .umc-role {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+.umc-role.role-admin { color: var(--primary); }
+.umc-role.role-technician { color: var(--success); }
+.user-mgmt-card .umc-actions { display: flex; gap: 4px; }
+
+/* ========== MY VIEW BANNER ========== */
+.my-view-banner {
+  background: var(--primary-bg);
+  border: 1px solid var(--primary-light);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+.my-view-banner strong { color: var(--primary); }
 </style>
 </head>
 <body>
+
+<!-- ========== LOGIN SCREEN ========== -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-card">
+    <div class="login-header">
+      <svg viewBox="0 0 260 80" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="28,12 40,28 20,24" fill="#a8c4e0"/>
+        <polygon points="40,28 52,16 56,36" fill="#7ba0d4"/>
+        <polygon points="40,28 56,36 44,48" fill="#6b8fc5"/>
+        <polygon points="28,12 52,16 40,28" fill="#8db0d8"/>
+        <polygon points="44,48 56,36 68,44" fill="#5a7eb5"/>
+        <polygon points="44,48 68,44 60,60" fill="#4a6fa5"/>
+        <polygon points="20,24 40,28 32,44" fill="#6b8fc5"/>
+        <polygon points="32,44 40,28 44,48" fill="#5a7eb5"/>
+        <polygon points="32,44 44,48 36,62" fill="#4a6fa5"/>
+        <polygon points="36,62 44,48 60,60" fill="#3a5a8a"/>
+        <polygon points="4,52 20,24 32,44" fill="#7ba0d4"/>
+        <polygon points="4,52 32,44 24,64" fill="#5a7eb5"/>
+        <polygon points="24,64 32,44 36,62" fill="#3a5a8a"/>
+        <polygon points="60,60 68,44 76,52" fill="#2c3e5a"/>
+        <text x="90" y="55" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif" font-size="38" font-weight="700" fill="#e8eef5" letter-spacing="2">DOVE</text>
+        <text x="207" y="55" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif" font-size="38" font-weight="700" fill="#7ba0d4" letter-spacing="2">IT</text>
+      </svg>
+      <h1>Compliance Tracker</h1>
+      <p>Sign in to continue</p>
+    </div>
+    <div class="login-body">
+      <div class="login-error" id="login-error">Invalid username or password</div>
+      <div class="form-group">
+        <label>Username</label>
+        <input class="form-control" id="login-username" type="text" placeholder="Enter your username..." autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input class="form-control" id="login-password" type="password" placeholder="Enter your password..." autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="login-btn" onclick="doLogin()">Sign In</button>
+    </div>
+    <div class="login-footer">
+      First time? Ask your admin to create an account for you.
+    </div>
+  </div>
+</div>
 
 <!-- NAV -->
 <nav class="navbar">
@@ -1345,6 +1569,17 @@ tbody tr { transition: background 0.15s ease; }
   <button class="dark-mode-toggle" id="dark-mode-btn" onclick="toggleDarkMode()">
     <span id="dark-mode-icon">&#9790;</span> <span id="dark-mode-label">Dark</span>
   </button>
+  <div class="user-menu" id="user-menu" style="display:none">
+    <div class="user-info" onclick="toggleUserDropdown()">
+      <div class="user-name" id="user-display-name"></div>
+      <div class="user-role" id="user-display-role"></div>
+    </div>
+    <div class="user-avatar" id="user-avatar" onclick="toggleUserDropdown()"></div>
+    <div class="user-dropdown" id="user-dropdown">
+      <div class="user-dropdown-item" onclick="openChangePasswordModal()">Change Password</div>
+      <div class="user-dropdown-item danger" onclick="doLogout()">Sign Out</div>
+    </div>
+  </div>
 </nav>
 
 <!-- TOAST CONTAINER -->
@@ -1414,7 +1649,7 @@ tbody tr { transition: background 0.15s ease; }
   <div id="view-clients" class="view">
     <div class="panel-header" style="background:none; padding: 0 0 16px 0;">
       <h2>Clients</h2>
-      <button class="btn btn-primary" onclick="openModal('client')">+ Add Client</button>
+      <button class="btn btn-primary admin-only" onclick="openModal('client')">+ Add Client</button>
     </div>
     <div class="client-grid" id="client-grid"></div>
     <div id="clients-empty"></div>
@@ -1501,7 +1736,7 @@ tbody tr { transition: background 0.15s ease; }
 
   <!-- ========== SETTINGS ========== -->
   <div id="view-settings" class="view">
-    <div class="panel">
+    <div class="panel admin-only-block" style="display:none">
       <div class="panel-header"><h2>Team Members / Technicians</h2></div>
       <div class="panel-body padded">
         <p style="font-size:0.85rem;color:var(--gray-500);margin-bottom:12px">Manage the list of people who can be assigned to complete obligations.</p>
@@ -1512,7 +1747,7 @@ tbody tr { transition: background 0.15s ease; }
         <div id="tech-list"></div>
       </div>
     </div>
-    <div class="panel">
+    <div class="panel admin-only-block" style="display:none">
       <div class="panel-header"><h2>Data Management</h2></div>
       <div class="panel-body padded">
         <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -1559,18 +1794,14 @@ tbody tr { transition: background 0.15s ease; }
         </div>
       </div>
     </div>
-    <div class="panel">
-      <div class="panel-header"><h2>Multi-User Support</h2></div>
+    <div class="panel admin-only-block" style="display:none">
+      <div class="panel-header">
+        <h2>User Accounts</h2>
+        <button class="btn btn-primary btn-sm" onclick="openCreateUserModal()">+ Create User</button>
+      </div>
       <div class="panel-body padded">
-        <div style="background:var(--primary-bg);border:1px solid var(--primary-light);border-radius:var(--radius);padding:16px;font-size:0.9rem">
-          <strong>Coming Soon</strong> &mdash; Multi-user support with role-based access (Admin, Technician, Viewer) is planned for a future release. This will include:
-          <ul style="margin:8px 0 0 20px;color:var(--text-secondary)">
-            <li>User authentication and login</li>
-            <li>Role-based permissions</li>
-            <li>Per-user activity tracking</li>
-            <li>Team dashboards</li>
-          </ul>
-        </div>
+        <p style="font-size:0.85rem;color:var(--gray-500);margin-bottom:16px">Manage login accounts. Admins have full access. Technicians can only view/complete their assigned obligations.</p>
+        <div class="user-mgmt-grid" id="user-mgmt-grid"></div>
       </div>
     </div>
   </div>
@@ -1643,6 +1874,472 @@ function saveData(data) {
 }
 
 let DATA = loadData();
+
+// ========================================================================
+// AUTH & SESSION MANAGEMENT
+// ========================================================================
+const AUTH_KEY = 'msp_auth_users';
+const SESSION_KEY = 'msp_session';
+
+function getDefaultUsers() {
+  // Hash a password (simple hash for localStorage - NOT production secure)
+  return [{
+    id: 'admin_default',
+    username: 'admin',
+    passwordHash: simpleHash('admin'),
+    displayName: 'Administrator',
+    role: 'admin', // 'admin' or 'technician'
+    technicianName: '', // links to DATA.technicians entry
+    createdAt: new Date().toISOString()
+  }];
+}
+
+function simpleHash(str) {
+  // Simple deterministic hash for localStorage auth (NOT cryptographically secure)
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return 'h_' + Math.abs(hash).toString(36) + '_' + str.length;
+}
+
+function loadUsers() {
+  try {
+    const raw = localStorage.getItem(AUTH_KEY);
+    if (!raw) {
+      const defaults = getDefaultUsers();
+      saveUsers(defaults);
+      return defaults;
+    }
+    return JSON.parse(raw);
+  } catch { return getDefaultUsers(); }
+}
+
+function saveUsers(users) {
+  localStorage.setItem(AUTH_KEY, JSON.stringify(users));
+}
+
+let USERS = loadUsers();
+let CURRENT_USER = null;
+
+function getSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+
+function saveSession(user) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    userId: user.id,
+    username: user.username,
+    role: user.role,
+    displayName: user.displayName,
+    technicianName: user.technicianName,
+    loginAt: new Date().toISOString()
+  }));
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+function doLogin() {
+  const username = document.getElementById('login-username').value.trim().toLowerCase();
+  const password = document.getElementById('login-password').value;
+  const errorEl = document.getElementById('login-error');
+
+  if (!username || !password) {
+    errorEl.textContent = 'Please enter both username and password';
+    errorEl.classList.add('visible');
+    return;
+  }
+
+  const user = USERS.find(u => u.username.toLowerCase() === username);
+  if (!user || user.passwordHash !== simpleHash(password)) {
+    errorEl.textContent = 'Invalid username or password';
+    errorEl.classList.add('visible');
+    document.getElementById('login-password').value = '';
+    return;
+  }
+
+  errorEl.classList.remove('visible');
+  CURRENT_USER = user;
+  saveSession(user);
+  onLoginSuccess();
+}
+
+function doLogout() {
+  CURRENT_USER = null;
+  clearSession();
+  document.body.classList.remove('role-admin', 'role-technician');
+  document.getElementById('login-overlay').classList.remove('hidden');
+  document.getElementById('user-menu').style.display = 'none';
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-error').classList.remove('visible');
+  closeUserDropdown();
+  showToast('Signed out');
+}
+
+function onLoginSuccess() {
+  document.getElementById('login-overlay').classList.add('hidden');
+
+  // Set role class on body for CSS-based permission gating
+  document.body.classList.remove('role-admin', 'role-technician');
+  document.body.classList.add('role-' + CURRENT_USER.role);
+
+  // Update navbar user menu
+  const menu = document.getElementById('user-menu');
+  menu.style.display = 'flex';
+  document.getElementById('user-display-name').textContent = CURRENT_USER.displayName;
+  document.getElementById('user-display-role').textContent = CURRENT_USER.role === 'admin' ? 'Admin' : 'Technician';
+  const initials = CURRENT_USER.displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  document.getElementById('user-avatar').textContent = initials;
+
+  // Apply role-based nav visibility
+  applyRolePermissions();
+
+  // For technicians, default to their filtered view
+  if (CURRENT_USER.role === 'technician') {
+    // Auto-filter dashboard to their tech
+    const dashTech = document.getElementById('dash-filter-tech');
+    if (dashTech && CURRENT_USER.technicianName) {
+      dashTech.value = CURRENT_USER.technicianName;
+    }
+    // Auto-filter quick actions
+    const qaTech = document.getElementById('qa-tech-filter');
+    if (qaTech && CURRENT_USER.technicianName) {
+      qaTech.value = CURRENT_USER.technicianName;
+    }
+    switchView('quick-actions'); // Technicians land on Quick Actions
+  } else {
+    switchView('dashboard'); // Admins land on Dashboard
+  }
+}
+
+function applyRolePermissions() {
+  if (!CURRENT_USER) return;
+
+  // Show/hide nav tabs based on role
+  const adminOnlyTabs = ['workload']; // Tabs only admins can see
+  const allTabs = document.querySelectorAll('.nav-tab');
+  allTabs.forEach(tab => {
+    const view = tab.dataset.view;
+    if (view === 'settings') {
+      // Settings is visible to all, but content is gated inside
+      tab.style.display = '';
+    } else if (adminOnlyTabs.includes(view) && CURRENT_USER.role !== 'admin') {
+      tab.parentElement.style.display = 'none';
+    } else {
+      tab.parentElement.style.display = '';
+    }
+  });
+
+  // For technicians, hide certain filter options and restrict to their clients
+  if (CURRENT_USER.role === 'technician' && CURRENT_USER.technicianName) {
+    // Show the "My View" banner on their views
+  }
+}
+
+function isAdmin() {
+  return CURRENT_USER && CURRENT_USER.role === 'admin';
+}
+
+function isTechnician() {
+  return CURRENT_USER && CURRENT_USER.role === 'technician';
+}
+
+function getCurrentTechName() {
+  return CURRENT_USER ? CURRENT_USER.technicianName || '' : '';
+}
+
+// Get clients visible to current user
+function getVisibleClients() {
+  if (!CURRENT_USER || isAdmin()) return DATA.clients;
+  const techName = getCurrentTechName();
+  if (!techName) return DATA.clients;
+  return DATA.clients.filter(c => c.primaryTech === techName || c.secondaryTech === techName);
+}
+
+// Get obligations visible to current user
+function getVisibleObligations() {
+  if (!CURRENT_USER || isAdmin()) return DATA.obligations;
+  const visibleClientIds = getVisibleClients().map(c => c.id);
+  return DATA.obligations.filter(o => visibleClientIds.includes(o.clientId));
+}
+
+// User dropdown
+function toggleUserDropdown() {
+  const dd = document.getElementById('user-dropdown');
+  dd.classList.toggle('open');
+}
+function closeUserDropdown() {
+  const dd = document.getElementById('user-dropdown');
+  if (dd) dd.classList.remove('open');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.user-menu')) {
+    closeUserDropdown();
+  }
+});
+
+// Change password
+function openChangePasswordModal() {
+  closeUserDropdown();
+  const overlay = document.getElementById('modal-overlay');
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  const footer = document.getElementById('modal-footer');
+
+  title.textContent = 'Change Password';
+  body.innerHTML = `
+    <div class="form-group"><label>Current Password</label><input class="form-control" type="password" id="f-pw-current"></div>
+    <div class="form-group"><label>New Password</label><input class="form-control" type="password" id="f-pw-new"></div>
+    <div class="form-group"><label>Confirm New Password</label><input class="form-control" type="password" id="f-pw-confirm"></div>
+  `;
+  footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="savePasswordChange()">Update Password</button>`;
+  overlay.classList.add('open');
+}
+
+function savePasswordChange() {
+  const current = document.getElementById('f-pw-current').value;
+  const newPw = document.getElementById('f-pw-new').value;
+  const confirm = document.getElementById('f-pw-confirm').value;
+
+  if (!current || !newPw || !confirm) {
+    showToast('All fields are required', 'danger');
+    return;
+  }
+
+  if (simpleHash(current) !== CURRENT_USER.passwordHash) {
+    showToast('Current password is incorrect', 'danger');
+    return;
+  }
+
+  if (newPw !== confirm) {
+    showToast('New passwords do not match', 'danger');
+    return;
+  }
+
+  if (newPw.length < 3) {
+    showToast('Password must be at least 3 characters', 'danger');
+    return;
+  }
+
+  const user = USERS.find(u => u.id === CURRENT_USER.id);
+  if (user) {
+    user.passwordHash = simpleHash(newPw);
+    CURRENT_USER.passwordHash = user.passwordHash;
+    saveUsers(USERS);
+    saveSession(CURRENT_USER);
+    showToast('Password updated!', 'success');
+    closeModal();
+  }
+}
+
+// ========================================================================
+// USER MANAGEMENT (Admin)
+// ========================================================================
+function renderUserManagement() {
+  const grid = document.getElementById('user-mgmt-grid');
+  if (!grid) return;
+
+  grid.innerHTML = USERS.map(u => {
+    const isCurrentUser = CURRENT_USER && u.id === CURRENT_USER.id;
+    return `<div class="user-mgmt-card">
+      <div class="umc-info">
+        <div class="umc-name">${esc(u.displayName)} ${isCurrentUser ? '<span style="font-size:0.7rem;color:var(--text-muted)">(you)</span>' : ''}</div>
+        <div class="umc-role role-${u.role}">${u.role === 'admin' ? 'Admin' : 'Technician'}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">@${esc(u.username)}${u.technicianName ? ' &middot; Tech: ' + esc(u.technicianName) : ''}</div>
+      </div>
+      <div class="umc-actions">
+        <button class="btn-icon" onclick="openEditUserModal('${u.id}')" title="Edit">&#9998;</button>
+        ${!isCurrentUser ? `<button class="btn-icon danger" onclick="deleteUser('${u.id}')" title="Delete">&#128465;</button>` : ''}
+        ${!isCurrentUser ? `<button class="btn btn-outline btn-sm" onclick="resetUserPassword('${u.id}')" title="Reset Password">Reset PW</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openCreateUserModal() {
+  const overlay = document.getElementById('modal-overlay');
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  const footer = document.getElementById('modal-footer');
+
+  title.textContent = 'Create User Account';
+
+  const techOptions = DATA.technicians.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+
+  body.innerHTML = `
+    <div class="form-group"><label>Display Name *</label><input class="form-control" id="f-user-display" placeholder="e.g. John DiSalle"></div>
+    <div class="form-group"><label>Username *</label><input class="form-control" id="f-user-username" placeholder="e.g. john"></div>
+    <div class="form-group"><label>Password *</label><input class="form-control" type="password" id="f-user-password" placeholder="Initial password"></div>
+    <div class="form-group"><label>Role *</label>
+      <select class="form-control" id="f-user-role" onchange="toggleUserTechField()">
+        <option value="technician">Technician</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="form-group" id="fg-user-tech"><label>Linked Technician</label>
+      <select class="form-control" id="f-user-tech">
+        <option value="">-- None (create one in Settings first) --</option>
+        ${techOptions}
+      </select>
+      <small style="color:var(--text-muted)">Links this account to a technician so they see only their assigned clients.</small>
+    </div>
+  `;
+  footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveNewUser()">Create Account</button>`;
+  overlay.classList.add('open');
+}
+
+function toggleUserTechField() {
+  const role = document.getElementById('f-user-role').value;
+  document.getElementById('fg-user-tech').style.display = role === 'technician' ? 'block' : 'none';
+}
+
+function saveNewUser() {
+  const displayName = document.getElementById('f-user-display').value.trim();
+  const username = document.getElementById('f-user-username').value.trim().toLowerCase();
+  const password = document.getElementById('f-user-password').value;
+  const role = document.getElementById('f-user-role').value;
+  const techName = document.getElementById('f-user-tech').value;
+
+  if (!displayName || !username || !password) {
+    showToast('Display name, username, and password are required', 'danger');
+    return;
+  }
+
+  if (username.length < 2) {
+    showToast('Username must be at least 2 characters', 'danger');
+    return;
+  }
+
+  if (password.length < 3) {
+    showToast('Password must be at least 3 characters', 'danger');
+    return;
+  }
+
+  if (USERS.find(u => u.username.toLowerCase() === username)) {
+    showToast('Username already exists', 'danger');
+    return;
+  }
+
+  USERS.push({
+    id: generateId(),
+    username,
+    passwordHash: simpleHash(password),
+    displayName,
+    role,
+    technicianName: role === 'technician' ? techName : '',
+    createdAt: new Date().toISOString()
+  });
+
+  saveUsers(USERS);
+  showToast(`Account "${username}" created!`, 'success');
+  closeModal();
+  renderUserManagement();
+}
+
+function openEditUserModal(userId) {
+  const user = USERS.find(u => u.id === userId);
+  if (!user) return;
+
+  const overlay = document.getElementById('modal-overlay');
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  const footer = document.getElementById('modal-footer');
+
+  title.textContent = 'Edit User - ' + user.displayName;
+
+  const techOptions = DATA.technicians.map(t => `<option value="${esc(t)}" ${user.technicianName === t ? 'selected' : ''}>${esc(t)}</option>`).join('');
+
+  body.innerHTML = `
+    <div class="form-group"><label>Display Name *</label><input class="form-control" id="f-edit-user-display" value="${esc(user.displayName)}"></div>
+    <div class="form-group"><label>Username</label><div class="form-control" style="background:var(--gray-50);color:var(--text-muted)">@${esc(user.username)} (cannot change)</div></div>
+    <div class="form-group"><label>Role *</label>
+      <select class="form-control" id="f-edit-user-role" onchange="document.getElementById('fg-edit-user-tech').style.display=this.value==='technician'?'block':'none'">
+        <option value="technician" ${user.role === 'technician' ? 'selected' : ''}>Technician</option>
+        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+      </select>
+    </div>
+    <div class="form-group" id="fg-edit-user-tech" style="display:${user.role === 'technician' ? 'block' : 'none'}"><label>Linked Technician</label>
+      <select class="form-control" id="f-edit-user-tech">
+        <option value="">-- None --</option>
+        ${techOptions}
+      </select>
+    </div>
+  `;
+  footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveEditUser('${userId}')">Save Changes</button>`;
+  overlay.classList.add('open');
+}
+
+function saveEditUser(userId) {
+  const user = USERS.find(u => u.id === userId);
+  if (!user) return;
+
+  const displayName = document.getElementById('f-edit-user-display').value.trim();
+  const role = document.getElementById('f-edit-user-role').value;
+  const techName = document.getElementById('f-edit-user-tech').value;
+
+  if (!displayName) {
+    showToast('Display name is required', 'danger');
+    return;
+  }
+
+  user.displayName = displayName;
+  user.role = role;
+  user.technicianName = role === 'technician' ? techName : '';
+
+  saveUsers(USERS);
+
+  // If editing current user, update session
+  if (CURRENT_USER && CURRENT_USER.id === userId) {
+    CURRENT_USER = user;
+    saveSession(user);
+    onLoginSuccess(); // Refresh permissions
+  }
+
+  showToast('User updated!', 'success');
+  closeModal();
+  renderUserManagement();
+}
+
+function deleteUser(userId) {
+  const user = USERS.find(u => u.id === userId);
+  if (!user) return;
+  if (CURRENT_USER && userId === CURRENT_USER.id) {
+    showToast('Cannot delete your own account', 'danger');
+    return;
+  }
+  if (!window.confirm(`Delete user "${user.displayName}" (@${user.username})?`)) return;
+
+  USERS = USERS.filter(u => u.id !== userId);
+  saveUsers(USERS);
+  showToast('User deleted');
+  renderUserManagement();
+}
+
+function resetUserPassword(userId) {
+  const user = USERS.find(u => u.id === userId);
+  if (!user) return;
+
+  const newPw = window.prompt(`Reset password for ${user.displayName}?\nEnter a new password:`);
+  if (!newPw || newPw.length < 3) {
+    if (newPw !== null) showToast('Password must be at least 3 characters', 'danger');
+    return;
+  }
+
+  user.passwordHash = simpleHash(newPw);
+  saveUsers(USERS);
+  showToast(`Password reset for ${user.displayName}`, 'success');
+}
 
 // CRUD helpers
 function addClient(c) { c.id = generateId(); c.createdAt = new Date().toISOString(); DATA.clients.push(c); saveData(DATA); return c; }
@@ -1885,22 +2582,38 @@ function renderDashboard() {
   const dashTechFilter = document.getElementById('dash-filter-tech');
   const curClient = dashClientFilter.value;
   const curTech = dashTechFilter.value;
-  dashClientFilter.innerHTML = '<option value="">All Clients</option>' + DATA.clients.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  const visibleClients = getVisibleClients();
+  dashClientFilter.innerHTML = '<option value="">All Clients</option>' + visibleClients.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
   dashClientFilter.value = curClient;
-  dashTechFilter.innerHTML = '<option value="">All Technicians</option>' + DATA.technicians.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
-  dashTechFilter.value = curTech;
+
+  // Technicians don't need the tech filter (they're already filtered)
+  if (isTechnician()) {
+    dashTechFilter.style.display = 'none';
+  } else {
+    dashTechFilter.style.display = '';
+    dashTechFilter.innerHTML = '<option value="">All Technicians</option>' + DATA.technicians.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+    dashTechFilter.value = curTech;
+  }
 
   let overdue = getAllOverdue();
   let upcoming = getUpcomingThisWeek();
   let recent = getRecentCompletions();
 
-  // Apply filters
+  // For technicians, auto-filter to their assigned clients
+  const visibleClientIds = visibleClients.map(c => c.id);
+  if (isTechnician()) {
+    overdue = overdue.filter(r => visibleClientIds.includes(r.obligation.clientId));
+    upcoming = upcoming.filter(r => visibleClientIds.includes(r.obligation.clientId));
+    recent = recent.filter(r => r.obligation && visibleClientIds.includes(r.obligation.clientId));
+  }
+
+  // Apply manual filters
   if (curClient) {
     overdue = overdue.filter(r => r.obligation.clientId === curClient);
     upcoming = upcoming.filter(r => r.obligation.clientId === curClient);
     recent = recent.filter(r => r.obligation && r.obligation.clientId === curClient);
   }
-  if (curTech) {
+  if (curTech && !isTechnician()) {
     const clientsForTech = DATA.clients.filter(c => c.primaryTech === curTech || c.secondaryTech === curTech).map(c => c.id);
     overdue = overdue.filter(r => clientsForTech.includes(r.obligation.clientId));
     upcoming = upcoming.filter(r => clientsForTech.includes(r.obligation.clientId));
@@ -1929,7 +2642,7 @@ function renderDashboard() {
 
   // Stats
   document.getElementById('dashboard-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-label">Total Clients</div><div class="stat-value">${DATA.clients.length}</div></div>
+    <div class="stat-card"><div class="stat-label">${isTechnician() ? 'My Clients' : 'Total Clients'}</div><div class="stat-value">${visibleClients.length}</div></div>
     <div class="stat-card warning"><div class="stat-label">Due This Week</div><div class="stat-value">${upcoming.length}</div></div>
     <div class="stat-card danger"><div class="stat-label">Overdue</div><div class="stat-value">${overdue.length}</div></div>
     <div class="stat-card success"><div class="stat-label">Completed This Month</div><div class="stat-value">${completedThisMonth}</div></div>
@@ -1972,15 +2685,16 @@ function renderDashboard() {
 function renderClients() {
   const grid = document.getElementById('client-grid');
   const empty = document.getElementById('clients-empty');
+  const clients = getVisibleClients();
 
-  if (DATA.clients.length === 0) {
+  if (clients.length === 0) {
     grid.innerHTML = '';
-    empty.innerHTML = '<div class="empty-state" style="padding:60px 20px"><div class="empty-icon">&#128188;</div><p>No clients yet. Add your first client to get started!</p></div>';
+    empty.innerHTML = `<div class="empty-state" style="padding:60px 20px"><div class="empty-icon">&#128188;</div><p>${isTechnician() ? 'No clients assigned to you yet.' : 'No clients yet. Add your first client to get started!'}</p></div>`;
     return;
   }
   empty.innerHTML = '';
 
-  grid.innerHTML = DATA.clients.map(c => {
+  grid.innerHTML = clients.map(c => {
     const comp = getClientCompliance(c.id);
     const obCount = DATA.obligations.filter(o => o.clientId === c.id).length;
     const barColor = comp.pct >= 80 ? 'var(--success)' : comp.pct >= 50 ? 'var(--warning)' : 'var(--danger)';
@@ -1990,8 +2704,8 @@ function renderClients() {
         <div onclick="event.stopPropagation()">
           <button class="btn-icon" onclick="openClientActivity('${c.id}')" title="Activity Log">&#128221;</button>
           <button class="btn-icon" onclick="generateClientReport('${c.id}')" title="Print Report">&#128424;</button>
-          <button class="btn-icon" onclick="openModal('client','${c.id}')" title="Edit">&#9998;</button>
-          <button class="btn-icon danger" onclick="confirmDeleteClient('${c.id}')" title="Delete">&#128465;</button>
+          ${isAdmin() ? `<button class="btn-icon" onclick="openModal('client','${c.id}')" title="Edit">&#9998;</button>
+          <button class="btn-icon danger" onclick="confirmDeleteClient('${c.id}')" title="Delete">&#128465;</button>` : ''}
         </div>
       </div>
       <div class="client-meta">${esc(c.contractDetails || 'No contract details')}</div>
@@ -2018,7 +2732,8 @@ function renderObligations() {
   // Update client filter
   const filterClient = document.getElementById('filter-client');
   const currentVal = filterClient.value;
-  filterClient.innerHTML = '<option value="">All Clients</option>' + DATA.clients.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  const visibleClients = getVisibleClients();
+  filterClient.innerHTML = '<option value="">All Clients</option>' + visibleClients.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
   filterClient.value = currentVal;
 
   // Update type filter
@@ -2028,7 +2743,7 @@ function renderObligations() {
   filterType.value = curType;
 
   const filterRec = document.getElementById('filter-recurrence').value;
-  let obs = [...DATA.obligations];
+  let obs = [...getVisibleObligations()];
   if (currentVal) obs = obs.filter(o => o.clientId === currentVal);
   if (filterRec) obs = obs.filter(o => o.recurrence === filterRec);
   if (curType) obs = obs.filter(o => (o.obligationType || 'custom') === curType);
@@ -2066,8 +2781,8 @@ function renderObligations() {
         <td>${status}</td>
         <td>
           ${canComplete ? `<button class="btn btn-success btn-sm" onclick="openCompleteModal('${ob.id}','${nextDue}')">Complete</button>` : ''}
-          <button class="btn-icon" onclick="openModal('obligation','${ob.id}')" title="Edit">&#9998;</button>
-          <button class="btn-icon danger" onclick="confirmDeleteObligation('${ob.id}')" title="Delete">&#128465;</button>
+          ${isAdmin() ? `<button class="btn-icon" onclick="openModal('obligation','${ob.id}')" title="Edit">&#9998;</button>
+          <button class="btn-icon danger" onclick="confirmDeleteObligation('${ob.id}')" title="Delete">&#128465;</button>` : ''}
         </td>
       </tr>`;
     }).join('')
@@ -2305,18 +3020,28 @@ function renderSettings() {
   const list = document.getElementById('tech-list');
   if (DATA.technicians.length === 0) {
     list.innerHTML = '<p style="color:var(--gray-400);font-size:0.85rem">No technicians added yet.</p>';
-    return;
+  } else {
+    list.innerHTML = DATA.technicians.map(t => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <span style="font-size:0.9rem">${esc(t)}</span>
+      <button class="btn-icon danger" onclick="removeTechnician('${esc(t)}')" title="Remove" style="font-size:0.8rem">&#10005;</button>
+    </div>`).join('');
   }
-  list.innerHTML = DATA.technicians.map(t => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-    <span style="font-size:0.9rem">${esc(t)}</span>
-    <button class="btn-icon danger" onclick="removeTechnician('${esc(t)}')" title="Remove" style="font-size:0.8rem">&#10005;</button>
-  </div>`).join('');
+  // Render user management if admin
+  if (isAdmin()) {
+    renderUserManagement();
+  }
 }
 
 // ========================================================================
 // MODALS
 // ========================================================================
 function openModal(type, editId) {
+  // Permission checks
+  if (type === 'client' && !isAdmin()) {
+    showToast('Only admins can manage clients', 'danger');
+    return;
+  }
+
   const overlay = document.getElementById('modal-overlay');
   const title = document.getElementById('modal-title');
   const body = document.getElementById('modal-body');
@@ -2346,7 +3071,7 @@ function openModal(type, editId) {
     const o = editId ? DATA.obligations.find(x => x.id === editId) : null;
     title.textContent = o ? 'Edit Obligation' : 'Add Obligation';
     body.innerHTML = `
-      <div class="form-group"><label>Client *</label><select class="form-control" id="f-ob-client">${DATA.clients.map(c => `<option value="${c.id}" ${o && o.clientId === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Client *</label><select class="form-control" id="f-ob-client">${getVisibleClients().map(c => `<option value="${c.id}" ${o && o.clientId === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
       <div class="form-group"><label>Obligation Type *</label><select class="form-control" id="f-ob-type">
         ${Object.entries(OBLIGATION_TYPES).map(([k, v]) => `<option value="${k}" ${(o?.obligationType || 'custom') === k ? 'selected' : ''}>${esc(v.label)}</option>`).join('')}
       </select></div>
@@ -2409,8 +3134,9 @@ function openCompleteModal(obligationId, dueDate) {
     `;
     footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Close</button><button class="btn btn-danger" onclick="undoCompletion('${existing.id}');closeModal()">Undo Completion</button>`;
   } else {
+    const currentTechName = getCurrentTechName();
     const techOptions = DATA.technicians.length > 0
-      ? DATA.technicians.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')
+      ? DATA.technicians.map(t => `<option value="${esc(t)}" ${t === currentTechName ? 'selected' : ''}>${esc(t)}</option>`).join('')
       : '';
     body.innerHTML = `
       <div class="form-group"><label>Client</label><div class="form-control" style="background:var(--gray-50)">${esc(client?.name || 'Unknown')}</div></div>
@@ -2418,8 +3144,8 @@ function openCompleteModal(obligationId, dueDate) {
       <div class="form-group"><label>Due Date</label><div class="form-control" style="background:var(--gray-50)">${formatDate(dueDate)}</div></div>
       <div class="form-group"><label>Completed By *</label>
         ${DATA.technicians.length > 0
-          ? `<select class="form-control" id="f-comp-by"><option value="">Select...</option>${techOptions}<option value="__other">Other (type name)</option></select><input class="form-control" id="f-comp-by-other" style="display:none;margin-top:4px" placeholder="Enter name...">`
-          : `<input class="form-control" id="f-comp-by-text" placeholder="Enter name...">`
+          ? `<select class="form-control" id="f-comp-by">${currentTechName ? '' : '<option value="">Select...</option>'}${techOptions}<option value="__other">Other (type name)</option></select><input class="form-control" id="f-comp-by-other" style="display:none;margin-top:4px" placeholder="Enter name...">`
+          : `<input class="form-control" id="f-comp-by-text" value="${esc(currentTechName)}" placeholder="Enter name...">`
         }
       </div>
       <div class="form-group"><label>Completion Date</label><input class="form-control" type="date" id="f-comp-date" value="${todayStr()}"></div>
@@ -2582,6 +3308,7 @@ function undoCompletion(id) {
 }
 
 function confirmDeleteClient(id) {
+  if (!isAdmin()) { showToast('Only admins can delete clients', 'danger'); return; }
   const c = DATA.clients.find(x => x.id === id);
   if (confirm(`Delete "${c?.name}"? This will also delete all their obligations and completion records.`)) {
     deleteClient(id);
@@ -2592,6 +3319,7 @@ function confirmDeleteClient(id) {
 }
 
 function confirmDeleteObligation(id) {
+  if (!isAdmin()) { showToast('Only admins can delete obligations', 'danger'); return; }
   const o = DATA.obligations.find(x => x.id === id);
   if (confirm(`Delete obligation "${o?.title}"? This will also remove all completion records for it.`)) {
     deleteObligation(id);
@@ -2658,6 +3386,27 @@ function loadSampleData() {
   ['John D.', 'Sarah M.', 'Mike R.'].forEach(t => {
     if (!DATA.technicians.includes(t)) DATA.technicians.push(t);
   });
+
+  // Create sample user accounts for technicians
+  const sampleUsers = [
+    { username: 'john', displayName: 'John D.', technicianName: 'John D.' },
+    { username: 'sarah', displayName: 'Sarah M.', technicianName: 'Sarah M.' },
+    { username: 'mike', displayName: 'Mike R.', technicianName: 'Mike R.' }
+  ];
+  sampleUsers.forEach(su => {
+    if (!USERS.find(u => u.username === su.username)) {
+      USERS.push({
+        id: generateId(),
+        username: su.username,
+        passwordHash: simpleHash(su.username), // password = username for sample
+        displayName: su.displayName,
+        role: 'technician',
+        technicianName: su.technicianName,
+        createdAt: new Date().toISOString()
+      });
+    }
+  });
+  saveUsers(USERS);
 
   const c1 = addClient({ name: 'Martin Dental', contractDetails: '12-month contract. Half day onsite monthly. Remote support included.', contactEmail: 'office@martindental.com', contactPhone: '555-0101', region: 'Downtown', primaryTech: 'John D.', secondaryTech: 'Sarah M.' });
   const c2 = addClient({ name: 'Summit Law Group', contractDetails: 'Monthly retainer. Weekly backup verification. Quarterly security review.', contactEmail: 'it@summitlaw.com', contactPhone: '555-0202', region: 'Midtown', primaryTech: 'Sarah M.', secondaryTech: 'Mike R.' });
@@ -3545,21 +4294,33 @@ let qaCompletedSet = new Set(); // Track just-completed items for visual feedbac
 
 function renderQuickActions() {
   const techFilter = document.getElementById('qa-tech-filter');
-  const curTech = techFilter.value;
+  let curTech = techFilter.value;
 
-  // Populate tech filter
-  techFilter.innerHTML = '<option value="">All Techs</option>' + DATA.technicians.map(t => `<option value="${esc(t)}" ${curTech === t ? 'selected' : ''}>${esc(t)}</option>`).join('');
-  techFilter.value = curTech;
+  // For technicians, auto-set and lock their filter
+  if (isTechnician() && getCurrentTechName()) {
+    curTech = getCurrentTechName();
+    techFilter.innerHTML = `<option value="${esc(curTech)}">${esc(curTech)}</option>`;
+    techFilter.value = curTech;
+    techFilter.disabled = true;
+  } else {
+    techFilter.disabled = false;
+    techFilter.innerHTML = '<option value="">All Techs</option>' + DATA.technicians.map(t => `<option value="${esc(t)}" ${curTech === t ? 'selected' : ''}>${esc(t)}</option>`).join('');
+    techFilter.value = curTech;
+  }
 
   // Get today's and overdue tasks
   const today = new Date(); today.setHours(0,0,0,0);
   const todayS = todayStr();
   const endOfDay = new Date(today); endOfDay.setDate(endOfDay.getDate() + 1);
   const sixMonthsAgo = new Date(); sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const visibleClients = getVisibleClients();
+  const visibleClientIds = visibleClients.map(c => c.id);
 
   let tasks = [];
 
   DATA.obligations.forEach(ob => {
+    // Filter to visible clients for technicians
+    if (isTechnician() && !visibleClientIds.includes(ob.clientId)) return;
     const client = DATA.clients.find(c => c.id === ob.clientId);
     if (!client) return;
 
@@ -3797,13 +4558,14 @@ function renderClientHealth() {
   const summary = document.getElementById('health-summary');
   if (!grid || !summary) return;
 
-  if (DATA.clients.length === 0) {
+  const clients = getVisibleClients();
+  if (clients.length === 0) {
     grid.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;grid-column:1/-1">No clients yet</div>';
     summary.innerHTML = '';
     return;
   }
 
-  const healthData = DATA.clients.map(c => {
+  const healthData = clients.map(c => {
     const comp = getClientCompliance(c.id);
     // Count overdue for this client
     const obs = DATA.obligations.filter(o => o.clientId === c.id);
@@ -4126,11 +4888,27 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 // Ensure teamFeed exists in data
 if (!DATA.teamFeed) { DATA.teamFeed = []; saveData(DATA); }
 
-// Initialize all features
+// Initialize theme early (before login screen)
 loadTheme();
+
+// Check for existing session
+const existingSession = getSession();
+if (existingSession) {
+  const user = USERS.find(u => u.id === existingSession.userId);
+  if (user) {
+    CURRENT_USER = user;
+    onLoginSuccess();
+  }
+}
+
+// Initialize all features
 initGlobalSearch();
 initCalendar();
-renderDashboard();
+if (CURRENT_USER) {
+  // Already logged in - dashboard was rendered by onLoginSuccess
+} else {
+  // Show login screen (already visible by default)
+}
 updateNotificationStatus();
 updateFaviconBadge();
 
