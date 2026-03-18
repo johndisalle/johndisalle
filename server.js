@@ -37,7 +37,9 @@ app.get('*', (req, res) => {
 async function start() {
   try {
     console.log(`Starting server on port ${PORT}...`);
-    console.log(`DATABASE_URL is ${process.env.DATABASE_URL ? 'set' : 'NOT SET'}`);
+    const dbUrl = process.env.DATABASE_URL || '';
+    const dbHost = dbUrl ? new URL(dbUrl).host : 'N/A';
+    console.log(`DATABASE_URL is set, host: ${dbHost}`);
     console.log(`JWT_SECRET is ${process.env.JWT_SECRET ? 'set' : 'NOT SET'}`);
     await initDatabase();
     app.listen(PORT, '0.0.0.0', () => {

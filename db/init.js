@@ -21,8 +21,24 @@ function getPool() {
   return pool;
 }
 
+async function waitForDatabase(db, retries = 10, delay = 3000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await db.query('SELECT 1');
+      return;
+    } catch (err) {
+      console.log(`Database connection attempt ${i + 1}/${retries} failed: ${err.message}`);
+      if (i === retries - 1) throw err;
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
+}
+
 async function initDatabase() {
   const db = getPool();
+  console.log('Waiting for database connection...');
+  await waitForDatabase(db);
+  console.log('Database connected');
   const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
   await db.query(schema);
 
