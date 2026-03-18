@@ -437,6 +437,16 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 select.form-control { cursor: pointer; }
 
+/* ========== OBLIGATION TYPE COLORS ========== */
+.ob-type-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
 /* ========== CALENDAR ========== */
 .calendar-nav {
   display: flex;
@@ -485,10 +495,156 @@ select.form-control { cursor: pointer; }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  border-left: 3px solid transparent;
 }
 .day-dot.completed { background: var(--success-bg); color: var(--success); }
 .day-dot.overdue { background: var(--danger-bg); color: var(--danger); }
 .day-dot.pending { background: var(--primary-bg); color: var(--primary); }
+
+/* ========== CALENDAR LEGEND ========== */
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+}
+.calendar-legend-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+}
+.calendar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.calendar-legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+/* ========== BULK COMPLETE ========== */
+.bulk-bar {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--primary-bg);
+  border: 1px solid var(--primary-light);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+.bulk-bar.visible { display: flex; }
+.bulk-bar .bulk-count { font-weight: 600; color: var(--primary); }
+.bulk-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+/* ========== CLIENT DETAIL VIEW ========== */
+.client-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+.client-detail-header h2 { font-size: 1.4rem; font-weight: 700; }
+.client-detail-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+.client-detail-info-item label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.client-detail-info-item div {
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+.client-detail-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--border-color);
+}
+.client-detail-tab {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: var(--font);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+}
+.client-detail-tab:hover { color: var(--text-primary); }
+.client-detail-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+.client-detail-section { display: none; }
+.client-detail-section.active { display: block; }
+.mini-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--gray-200);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.mini-calendar-grid .day-header {
+  background: var(--gray-50);
+  padding: 4px;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+.mini-calendar-grid .day-cell {
+  background: var(--card-bg);
+  min-height: 60px;
+  padding: 4px;
+  font-size: 0.75rem;
+}
+.mini-calendar-grid .day-cell.other-month { background: var(--gray-50); color: var(--gray-400); }
+.mini-calendar-grid .day-cell.today { background: var(--primary-bg); }
+.mini-calendar-grid .day-dot {
+  font-size: 0.6rem;
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 1px;
+  border-left: 2px solid transparent;
+}
 
 /* ========== CLIENT CARDS ========== */
 .client-grid {
@@ -972,10 +1128,23 @@ tbody tr { transition: background 0.15s ease; }
         <option value="quarterly">Quarterly</option>
         <option value="annually">Annually</option>
       </select>
+      <select class="form-control" style="width:auto" id="filter-ob-type" onchange="renderObligations()">
+        <option value="">All Types</option>
+      </select>
+    </div>
+    <div class="bulk-bar" id="bulk-bar">
+      <span class="bulk-count" id="bulk-count">0</span> selected
+      <button class="btn btn-success btn-sm" onclick="openBulkCompleteModal()">Bulk Complete</button>
+      <button class="btn btn-outline btn-sm" onclick="clearBulkSelection()">Clear Selection</button>
     </div>
     <div class="panel">
       <div class="panel-body" id="obligations-table"></div>
     </div>
+  </div>
+
+  <!-- ========== CLIENT DETAIL ========== -->
+  <div id="view-client-detail" class="view">
+    <div id="client-detail-content"></div>
   </div>
 
   <!-- ========== CALENDAR ========== -->
@@ -987,6 +1156,7 @@ tbody tr { transition: background 0.15s ease; }
       <button class="btn btn-outline btn-sm" onclick="goToToday()">Today</button>
     </div>
     <div class="calendar-grid" id="calendar-grid"></div>
+    <div class="calendar-legend" id="calendar-legend"></div>
   </div>
 
   <!-- ========== WORKLOAD ========== -->
@@ -1070,6 +1240,29 @@ tbody tr { transition: background 0.15s ease; }
 </div>
 
 <script>
+// ========================================================================
+// OBLIGATION TYPES & COLORS
+// ========================================================================
+const OBLIGATION_TYPES = {
+  'onsite_visit':         { label: 'Onsite Visit',         color: '#3b82f6', bg: '#eff6ff' },
+  'backup_verification':  { label: 'Backup Verification',  color: '#8b5cf6', bg: '#f5f3ff' },
+  'security_review':      { label: 'Security Review',      color: '#ef4444', bg: '#fef2f2' },
+  'patch_management':     { label: 'Patch Management',     color: '#f59e0b', bg: '#fffbeb' },
+  'cert_renewal':         { label: 'Certification Renewal',color: '#ec4899', bg: '#fdf2f8' },
+  'vulnerability_scan':   { label: 'Vulnerability Scan',   color: '#14b8a6', bg: '#f0fdfa' },
+  'hipaa_compliance':     { label: 'HIPAA/Compliance Check',color: '#f97316', bg: '#fff7ed' },
+  'custom':               { label: 'Custom',               color: '#6b7280', bg: '#f9fafb' }
+};
+
+function getObTypeInfo(typeKey) {
+  return OBLIGATION_TYPES[typeKey] || OBLIGATION_TYPES['custom'];
+}
+
+function obTypeDot(typeKey) {
+  const info = getObTypeInfo(typeKey);
+  return `<span class="ob-type-dot" style="background:${info.color}"></span>`;
+}
+
 // ========================================================================
 // DATA LAYER
 // ========================================================================
@@ -1318,7 +1511,8 @@ function switchView(view) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + view).classList.add('active');
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.nav-tab[data-view="${view}"]`).classList.add('active');
+  const tab = document.querySelector(`.nav-tab[data-view="${view}"]`);
+  if (tab) tab.classList.add('active');
 
   if (view === 'dashboard') renderDashboard();
   else if (view === 'clients') renderClients();
@@ -1326,6 +1520,7 @@ function switchView(view) {
   else if (view === 'workload') renderWorkload();
   else if (view === 'calendar') renderCalendar();
   else if (view === 'settings') renderSettings();
+  // client-detail is rendered by openClientDetail()
 }
 
 // --- DASHBOARD ---
@@ -1390,7 +1585,7 @@ function renderDashboard() {
     document.getElementById('overdue-table').innerHTML = '<div class="empty-state"><div class="empty-icon">&#10003;</div><p>No overdue obligations. Great job!</p></div>';
   } else {
     document.getElementById('overdue-table').innerHTML = `<table><thead><tr><th>Client</th><th>Obligation</th><th>Due Date</th><th>Days Overdue</th><th>Action</th></tr></thead><tbody>${
-      overdue.map(r => `<tr><td>${esc(r.client?.name || 'Unknown')}</td><td>${esc(r.obligation.title)}</td><td>${formatDate(r.dueDate)}</td><td><span class="badge badge-danger">${r.daysOverdue} days</span></td><td><button class="btn btn-success btn-sm" onclick="openCompleteModal('${r.obligation.id}','${r.dueDate}')">Complete</button></td></tr>`).join('')
+      overdue.map(r => `<tr><td>${esc(r.client?.name || 'Unknown')}</td><td>${obTypeDot(r.obligation.obligationType)}${esc(r.obligation.title)}</td><td>${formatDate(r.dueDate)}</td><td><span class="badge badge-danger">${r.daysOverdue} days</span></td><td><button class="btn btn-success btn-sm" onclick="openCompleteModal('${r.obligation.id}','${r.dueDate}')">Complete</button></td></tr>`).join('')
     }</tbody></table>`;
   }
 
@@ -1399,7 +1594,7 @@ function renderDashboard() {
     document.getElementById('upcoming-table').innerHTML = '<div class="empty-state"><p>Nothing due this week.</p></div>';
   } else {
     document.getElementById('upcoming-table').innerHTML = `<table><thead><tr><th>Client</th><th>Obligation</th><th>Due Date</th><th>Due In</th><th>Action</th></tr></thead><tbody>${
-      upcoming.map(r => `<tr><td>${esc(r.client?.name || 'Unknown')}</td><td>${esc(r.obligation.title)}</td><td>${formatDate(r.dueDate)}</td><td><span class="badge ${r.daysUntil <= 1 ? 'badge-warning' : 'badge-info'}">${r.daysUntil === 0 ? 'Today' : r.daysUntil + ' days'}</span></td><td><button class="btn btn-success btn-sm" onclick="openCompleteModal('${r.obligation.id}','${r.dueDate}')">Complete</button></td></tr>`).join('')
+      upcoming.map(r => `<tr><td>${esc(r.client?.name || 'Unknown')}</td><td>${obTypeDot(r.obligation.obligationType)}${esc(r.obligation.title)}</td><td>${formatDate(r.dueDate)}</td><td><span class="badge ${r.daysUntil <= 1 ? 'badge-warning' : 'badge-info'}">${r.daysUntil === 0 ? 'Today' : r.daysUntil + ' days'}</span></td><td><button class="btn btn-success btn-sm" onclick="openCompleteModal('${r.obligation.id}','${r.dueDate}')">Complete</button></td></tr>`).join('')
     }</tbody></table>`;
   }
 
@@ -1429,10 +1624,10 @@ function renderClients() {
     const comp = getClientCompliance(c.id);
     const obCount = DATA.obligations.filter(o => o.clientId === c.id).length;
     const barColor = comp.pct >= 80 ? 'var(--success)' : comp.pct >= 50 ? 'var(--warning)' : 'var(--danger)';
-    return `<div class="client-card">
+    return `<div class="client-card" style="cursor:pointer" onclick="openClientDetail('${c.id}')">
       <div class="client-card-header">
-        <h3>${esc(c.name)}</h3>
-        <div>
+        <h3 style="color:var(--primary)">${esc(c.name)}</h3>
+        <div onclick="event.stopPropagation()">
           <button class="btn-icon" onclick="openClientActivity('${c.id}')" title="Activity Log">&#128221;</button>
           <button class="btn-icon" onclick="generateClientReport('${c.id}')" title="Print Report">&#128424;</button>
           <button class="btn-icon" onclick="openModal('client','${c.id}')" title="Edit">&#9998;</button>
@@ -1457,6 +1652,8 @@ function renderClients() {
 }
 
 // --- OBLIGATIONS ---
+let bulkSelection = new Set();
+
 function renderObligations() {
   // Update client filter
   const filterClient = document.getElementById('filter-client');
@@ -1464,19 +1661,27 @@ function renderObligations() {
   filterClient.innerHTML = '<option value="">All Clients</option>' + DATA.clients.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
   filterClient.value = currentVal;
 
+  // Update type filter
+  const filterType = document.getElementById('filter-ob-type');
+  const curType = filterType.value;
+  filterType.innerHTML = '<option value="">All Types</option>' + Object.entries(OBLIGATION_TYPES).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join('');
+  filterType.value = curType;
+
   const filterRec = document.getElementById('filter-recurrence').value;
   let obs = [...DATA.obligations];
   if (currentVal) obs = obs.filter(o => o.clientId === currentVal);
   if (filterRec) obs = obs.filter(o => o.recurrence === filterRec);
+  if (curType) obs = obs.filter(o => (o.obligationType || 'custom') === curType);
 
   const container = document.getElementById('obligations-table');
   if (obs.length === 0) {
     container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128203;</div><p>No obligations found. Add one to start tracking!</p></div>';
+    updateBulkBar();
     return;
   }
 
   const today = todayStr();
-  container.innerHTML = `<table><thead><tr><th>Client</th><th>Obligation</th><th>Frequency</th><th>Next Due</th><th>Status</th><th>Actions</th></tr></thead><tbody>${
+  container.innerHTML = `<table><thead><tr><th style="width:32px"><input type="checkbox" class="bulk-checkbox" id="bulk-select-all" onchange="toggleSelectAll(this)"></th><th>Client</th><th>Type</th><th>Obligation</th><th>Frequency</th><th>Next Due</th><th>Status</th><th>Actions</th></tr></thead><tbody>${
     obs.map(ob => {
       const client = DATA.clients.find(c => c.id === ob.clientId);
       const nextDue = getNextDueDate(ob);
@@ -1487,20 +1692,157 @@ function renderObligations() {
       else if (nextDue) status = '<span class="badge badge-info">Pending</span>';
       else status = '<span class="badge badge-gray">N/A</span>';
 
+      const typeInfo = getObTypeInfo(ob.obligationType);
+      const canComplete = nextDue && !nextComp;
+      const isChecked = bulkSelection.has(ob.id + '|' + nextDue);
+
       return `<tr>
+        <td>${canComplete ? `<input type="checkbox" class="bulk-checkbox" data-ob-id="${ob.id}" data-due="${nextDue}" ${isChecked ? 'checked' : ''} onchange="toggleBulkItem(this)">` : ''}</td>
         <td>${esc(client?.name || 'Unknown')}</td>
+        <td>${obTypeDot(ob.obligationType)}<span style="font-size:0.8rem">${esc(typeInfo.label)}</span></td>
         <td><strong>${esc(ob.title)}</strong>${ob.description ? '<br><small style="color:var(--gray-500)">' + esc(ob.description) + '</small>' : ''}</td>
         <td><span class="badge badge-gray">${capitalize(ob.recurrence)}</span></td>
         <td>${nextDue ? formatDate(nextDue) : 'N/A'}</td>
         <td>${status}</td>
         <td>
-          ${nextDue && !nextComp ? `<button class="btn btn-success btn-sm" onclick="openCompleteModal('${ob.id}','${nextDue}')">Complete</button>` : ''}
+          ${canComplete ? `<button class="btn btn-success btn-sm" onclick="openCompleteModal('${ob.id}','${nextDue}')">Complete</button>` : ''}
           <button class="btn-icon" onclick="openModal('obligation','${ob.id}')" title="Edit">&#9998;</button>
           <button class="btn-icon danger" onclick="confirmDeleteObligation('${ob.id}')" title="Delete">&#128465;</button>
         </td>
       </tr>`;
     }).join('')
   }</tbody></table>`;
+  updateBulkBar();
+}
+
+// --- BULK COMPLETE ---
+function toggleBulkItem(checkbox) {
+  const key = checkbox.dataset.obId + '|' + checkbox.dataset.due;
+  if (checkbox.checked) bulkSelection.add(key);
+  else bulkSelection.delete(key);
+  updateBulkBar();
+}
+
+function toggleSelectAll(checkbox) {
+  const items = document.querySelectorAll('#obligations-table .bulk-checkbox[data-ob-id]');
+  items.forEach(cb => {
+    cb.checked = checkbox.checked;
+    const key = cb.dataset.obId + '|' + cb.dataset.due;
+    if (checkbox.checked) bulkSelection.add(key);
+    else bulkSelection.delete(key);
+  });
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulk-bar');
+  const count = document.getElementById('bulk-count');
+  if (bulkSelection.size > 0) {
+    bar.classList.add('visible');
+    count.textContent = bulkSelection.size;
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+function clearBulkSelection() {
+  bulkSelection.clear();
+  document.querySelectorAll('#obligations-table .bulk-checkbox').forEach(cb => cb.checked = false);
+  updateBulkBar();
+}
+
+function openBulkCompleteModal() {
+  if (bulkSelection.size === 0) return;
+
+  const items = Array.from(bulkSelection).map(key => {
+    const [obId, due] = key.split('|');
+    const ob = DATA.obligations.find(o => o.id === obId);
+    const client = ob ? DATA.clients.find(c => c.id === ob.clientId) : null;
+    return { obId, due, ob, client };
+  }).filter(i => i.ob);
+
+  const overlay = document.getElementById('modal-overlay');
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  const footer = document.getElementById('modal-footer');
+
+  title.textContent = `Bulk Complete (${items.length} items)`;
+
+  const techOptions = DATA.technicians.length > 0
+    ? DATA.technicians.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')
+    : '';
+
+  body.innerHTML = `
+    <div style="max-height:200px;overflow-y:auto;margin-bottom:16px;border:1px solid var(--border-color);border-radius:var(--radius);padding:8px">
+      ${items.map(i => `<div style="padding:4px 0;font-size:0.85rem;border-bottom:1px solid var(--border-color)">
+        ${obTypeDot(i.ob.obligationType)}<strong>${esc(i.client?.name || 'Unknown')}</strong> &mdash; ${esc(i.ob.title)} <span style="color:var(--text-muted)">(${formatDate(i.due)})</span>
+      </div>`).join('')}
+    </div>
+    <div class="form-group"><label>Completed By *</label>
+      ${DATA.technicians.length > 0
+        ? `<select class="form-control" id="f-bulk-by"><option value="">Select...</option>${techOptions}<option value="__other">Other (type name)</option></select><input class="form-control" id="f-bulk-by-other" style="display:none;margin-top:4px" placeholder="Enter name...">`
+        : `<input class="form-control" id="f-bulk-by-text" placeholder="Enter name...">`
+      }
+    </div>
+    <div class="form-group"><label>Completion Date</label><input class="form-control" type="date" id="f-bulk-date" value="${todayStr()}"></div>
+    <div class="form-group"><label>Notes</label><textarea class="form-control" id="f-bulk-notes" placeholder="Optional notes for all items..."></textarea></div>
+  `;
+  footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-success" onclick="saveBulkComplete()">Complete All ${items.length}</button>`;
+
+  overlay.classList.add('open');
+
+  setTimeout(() => {
+    const sel = document.getElementById('f-bulk-by');
+    if (sel) {
+      sel.addEventListener('change', () => {
+        const otherInput = document.getElementById('f-bulk-by-other');
+        otherInput.style.display = sel.value === '__other' ? 'block' : 'none';
+      });
+    }
+  }, 50);
+}
+
+function saveBulkComplete() {
+  let completedBy = '';
+  const sel = document.getElementById('f-bulk-by');
+  const textInput = document.getElementById('f-bulk-by-text');
+
+  if (sel) {
+    completedBy = sel.value === '__other'
+      ? document.getElementById('f-bulk-by-other').value.trim()
+      : sel.value;
+  } else if (textInput) {
+    completedBy = textInput.value.trim();
+  }
+
+  if (!completedBy) { showToast('Please enter who completed these', 'danger'); return; }
+
+  if (!DATA.technicians.includes(completedBy)) {
+    DATA.technicians.push(completedBy);
+  }
+
+  const compDate = document.getElementById('f-bulk-date').value;
+  const notes = document.getElementById('f-bulk-notes').value.trim();
+
+  let count = 0;
+  bulkSelection.forEach(key => {
+    const [obId, due] = key.split('|');
+    if (!getCompletion(obId, due)) {
+      addCompletion({
+        obligationId: obId,
+        dueDate: due,
+        completedAt: new Date(compDate + 'T12:00:00').toISOString(),
+        completedBy,
+        notes
+      });
+      count++;
+    }
+  });
+
+  bulkSelection.clear();
+  showToast(`${count} obligation${count !== 1 ? 's' : ''} marked complete!`, 'success');
+  closeModal();
+  refreshCurrentView();
 }
 
 // --- CALENDAR ---
@@ -1522,6 +1864,7 @@ function renderCalendar() {
   const monthStart = new Date(calYear, calMonth, 1);
   const monthEnd = new Date(calYear, calMonth + 1, 0);
   const instanceMap = {};
+  const typesUsed = new Set();
 
   DATA.obligations.forEach(ob => {
     const instances = getInstancesInRange(ob, monthStart, monthEnd);
@@ -1533,6 +1876,7 @@ function renderCalendar() {
       if (comp) status = 'completed';
       else if (d < today) status = 'overdue';
       instanceMap[d].push({ obligation: ob, client, status, dueDate: d });
+      typesUsed.add(ob.obligationType || 'custom');
     });
   });
 
@@ -1553,7 +1897,10 @@ function renderCalendar() {
     const items = instanceMap[ds] || [];
     html += `<div class="day-cell${isToday ? ' today' : ''}" onclick="openDayDetail('${ds}')">
       <div class="day-number">${d}</div>
-      <div class="day-dots">${items.slice(0, 3).map(i => `<div class="day-dot ${i.status}">${esc(i.client?.name || '')} - ${esc(i.obligation.title)}</div>`).join('')}${items.length > 3 ? `<div class="day-dot pending">+${items.length - 3} more</div>` : ''}</div>
+      <div class="day-dots">${items.slice(0, 3).map(i => {
+        const typeColor = getObTypeInfo(i.obligation.obligationType).color;
+        return `<div class="day-dot ${i.status}" style="border-left-color:${typeColor}">${esc(i.client?.name || '')} - ${esc(i.obligation.title)}</div>`;
+      }).join('')}${items.length > 3 ? `<div class="day-dot pending">+${items.length - 3} more</div>` : ''}</div>
     </div>`;
   }
 
@@ -1565,6 +1912,30 @@ function renderCalendar() {
   }
 
   grid.innerHTML = html;
+
+  // Render calendar legend
+  renderCalendarLegend(typesUsed);
+}
+
+function renderCalendarLegend(typesUsed) {
+  const legend = document.getElementById('calendar-legend');
+  if (!typesUsed || typesUsed.size === 0) {
+    legend.innerHTML = '<span class="calendar-legend-title">Legend</span><span style="font-size:0.8rem;color:var(--text-muted)">No obligations this month</span>';
+    return;
+  }
+
+  let html = '<span class="calendar-legend-title">Obligation Types</span>';
+  // Status legend
+  html += `<div class="calendar-legend-item"><div class="calendar-legend-swatch" style="background:var(--primary-bg);border:1px solid var(--primary)"></div>Pending</div>`;
+  html += `<div class="calendar-legend-item"><div class="calendar-legend-swatch" style="background:var(--success-bg);border:1px solid var(--success)"></div>Completed</div>`;
+  html += `<div class="calendar-legend-item"><div class="calendar-legend-swatch" style="background:var(--danger-bg);border:1px solid var(--danger)"></div>Overdue</div>`;
+  html += '<span style="width:1px;height:20px;background:var(--border-color);margin:0 4px"></span>';
+  // Type legend
+  typesUsed.forEach(typeKey => {
+    const info = getObTypeInfo(typeKey);
+    html += `<div class="calendar-legend-item"><div class="calendar-legend-swatch" style="background:${info.color}"></div>${esc(info.label)}</div>`;
+  });
+  legend.innerHTML = html;
 }
 
 // --- SETTINGS ---
@@ -1614,6 +1985,9 @@ function openModal(type, editId) {
     title.textContent = o ? 'Edit Obligation' : 'Add Obligation';
     body.innerHTML = `
       <div class="form-group"><label>Client *</label><select class="form-control" id="f-ob-client">${DATA.clients.map(c => `<option value="${c.id}" ${o && o.clientId === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Obligation Type *</label><select class="form-control" id="f-ob-type">
+        ${Object.entries(OBLIGATION_TYPES).map(([k, v]) => `<option value="${k}" ${(o?.obligationType || 'custom') === k ? 'selected' : ''}>${esc(v.label)}</option>`).join('')}
+      </select></div>
       <div class="form-group"><label>Obligation Title *</label><input class="form-control" id="f-ob-title" value="${esc(o?.title || '')}"></div>
       <div class="form-group"><label>Description</label><textarea class="form-control" id="f-ob-desc">${esc(o?.description || '')}</textarea></div>
       <div class="form-group"><label>Frequency *</label><select class="form-control" id="f-ob-recurrence" onchange="toggleRecurrenceFields()">
@@ -1786,6 +2160,7 @@ function saveObligation(editId) {
     clientId,
     title: titleVal,
     description: document.getElementById('f-ob-desc').value.trim(),
+    obligationType: document.getElementById('f-ob-type').value,
     recurrence: rec,
     specificDate: specificDate,
     dayOfWeek: (rec === 'weekly' || rec === 'biweekly') ? parseInt(document.getElementById('f-ob-dow').value) : null,
@@ -1924,24 +2299,24 @@ function loadSampleData() {
   const c4 = addClient({ name: 'Pacific Manufacturing', contractDetails: '6-month contract. Monthly patching. Bi-weekly monitoring review.', contactEmail: 'ops@pacificmfg.com', contactPhone: '555-0404', region: 'Industrial Park', primaryTech: 'John D.', secondaryTech: 'Mike R.' });
 
   // Martin Dental obligations
-  const o1 = addObligation({ clientId: c1.id, title: 'Onsite Visit - Half Day', description: 'Monthly onsite maintenance and user support', recurrence: 'monthly', dayOfMonth: 15, dayOfWeek: null, monthOfYear: null });
-  addObligation({ clientId: c1.id, title: 'Backup Verification', description: 'Verify all backups completed successfully', recurrence: 'weekly', dayOfWeek: 1, dayOfMonth: null, monthOfYear: null });
+  const o1 = addObligation({ clientId: c1.id, title: 'Onsite Visit - Half Day', description: 'Monthly onsite maintenance and user support', obligationType: 'onsite_visit', recurrence: 'monthly', dayOfMonth: 15, dayOfWeek: null, monthOfYear: null });
+  addObligation({ clientId: c1.id, title: 'Backup Verification', description: 'Verify all backups completed successfully', obligationType: 'backup_verification', recurrence: 'weekly', dayOfWeek: 1, dayOfMonth: null, monthOfYear: null });
 
   // Summit Law obligations
-  addObligation({ clientId: c2.id, title: 'Backup Verification', description: 'Check backup status and test restore', recurrence: 'weekly', dayOfWeek: 2, dayOfMonth: null, monthOfYear: null });
-  addObligation({ clientId: c2.id, title: 'Security Review', description: 'Quarterly security assessment and vulnerability scan', recurrence: 'quarterly', dayOfMonth: 1, dayOfWeek: null, monthOfYear: null });
+  addObligation({ clientId: c2.id, title: 'Backup Verification', description: 'Check backup status and test restore', obligationType: 'backup_verification', recurrence: 'weekly', dayOfWeek: 2, dayOfMonth: null, monthOfYear: null });
+  addObligation({ clientId: c2.id, title: 'Security Review', description: 'Quarterly security assessment and vulnerability scan', obligationType: 'security_review', recurrence: 'quarterly', dayOfMonth: 1, dayOfWeek: null, monthOfYear: null });
 
   // Riverside Medical obligations
-  addObligation({ clientId: c3.id, title: 'Onsite Support Day', description: 'Full day onsite support and maintenance', recurrence: 'weekly', dayOfWeek: 3, dayOfMonth: null, monthOfYear: null });
-  addObligation({ clientId: c3.id, title: 'HIPAA Compliance Check', description: 'Monthly HIPAA compliance verification', recurrence: 'monthly', dayOfMonth: 1, dayOfWeek: null, monthOfYear: null });
+  addObligation({ clientId: c3.id, title: 'Onsite Support Day', description: 'Full day onsite support and maintenance', obligationType: 'onsite_visit', recurrence: 'weekly', dayOfWeek: 3, dayOfMonth: null, monthOfYear: null });
+  addObligation({ clientId: c3.id, title: 'HIPAA Compliance Check', description: 'Monthly HIPAA compliance verification', obligationType: 'hipaa_compliance', recurrence: 'monthly', dayOfMonth: 1, dayOfWeek: null, monthOfYear: null });
 
   // Pacific Manufacturing obligations
-  addObligation({ clientId: c4.id, title: 'Patch Management', description: 'Apply and verify monthly patches', recurrence: 'monthly', dayOfMonth: 20, dayOfWeek: null, monthOfYear: null });
-  addObligation({ clientId: c4.id, title: 'Monitoring Review', description: 'Bi-weekly review of monitoring alerts and trends', recurrence: 'biweekly', dayOfWeek: 4, dayOfMonth: null, monthOfYear: null });
+  addObligation({ clientId: c4.id, title: 'Patch Management', description: 'Apply and verify monthly patches', obligationType: 'patch_management', recurrence: 'monthly', dayOfMonth: 20, dayOfWeek: null, monthOfYear: null });
+  addObligation({ clientId: c4.id, title: 'Monitoring Review', description: 'Bi-weekly review of monitoring alerts and trends', obligationType: 'vulnerability_scan', recurrence: 'biweekly', dayOfWeek: 4, dayOfMonth: null, monthOfYear: null });
 
   // One-time obligation example
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 10);
-  addObligation({ clientId: c2.id, title: 'Annual Contract Renewal', description: 'Review and renew managed services contract', recurrence: 'once', specificDate: dateStr(nextMonth), dayOfWeek: null, dayOfMonth: null, monthOfYear: null });
+  addObligation({ clientId: c2.id, title: 'Annual Contract Renewal', description: 'Review and renew managed services contract', obligationType: 'cert_renewal', recurrence: 'once', specificDate: dateStr(nextMonth), dayOfWeek: null, dayOfMonth: null, monthOfYear: null });
 
   // Add some sample completions for Martin Dental onsite (last 2 months)
   const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 15);
@@ -2159,7 +2534,7 @@ function handleSearchClick(type, id) {
   document.getElementById('search-dropdown').style.display = 'none';
 
   if (type === 'Client') {
-    switchView('clients');
+    openClientDetail(id);
   } else if (type === 'Obligation') {
     switchView('obligations');
   } else if (type === 'Completion') {
@@ -2473,6 +2848,328 @@ function generateClientReport(clientId) {
   `;
 
   window.print();
+}
+
+// ========================================================================
+// CLIENT DETAIL VIEW
+// ========================================================================
+let clientDetailMonth, clientDetailYear;
+
+function openClientDetail(clientId) {
+  const client = DATA.clients.find(c => c.id === clientId);
+  if (!client) return;
+
+  // Init mini-calendar to current month
+  const now = new Date();
+  clientDetailMonth = now.getMonth();
+  clientDetailYear = now.getFullYear();
+
+  // Switch to client-detail view
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-client-detail').classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  // Highlight clients tab
+  const clientsTab = document.querySelector('.nav-tab[data-view="clients"]');
+  if (clientsTab) clientsTab.classList.add('active');
+
+  renderClientDetail(clientId);
+}
+
+function renderClientDetail(clientId) {
+  const client = DATA.clients.find(c => c.id === clientId);
+  if (!client) return;
+
+  const comp = getClientCompliance(clientId);
+  const obs = DATA.obligations.filter(o => o.clientId === clientId);
+  const today = todayStr();
+  const barColor = comp.pct >= 80 ? 'var(--success)' : comp.pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+
+  // Gather overdue for this client
+  const overdueItems = [];
+  const sixMonthsAgo = new Date(); sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+  obs.forEach(ob => {
+    if (ob.recurrence === 'once' && ob.specificDate) {
+      if (ob.specificDate < today && !getCompletion(ob.id, ob.specificDate)) {
+        overdueItems.push({ ob, dueDate: ob.specificDate, daysOverdue: Math.floor((new Date() - parseDate(ob.specificDate)) / 86400000) });
+      }
+      return;
+    }
+    getInstancesInRange(ob, sixMonthsAgo, yesterday).forEach(d => {
+      if (d < today && !getCompletion(ob.id, d)) {
+        overdueItems.push({ ob, dueDate: d, daysOverdue: Math.floor((new Date() - parseDate(d)) / 86400000) });
+      }
+    });
+  });
+
+  // All completions for this client
+  const clientCompletions = [];
+  obs.forEach(ob => {
+    DATA.completions.filter(c => c.obligationId === ob.id).forEach(c => {
+      clientCompletions.push({ ...c, ob });
+    });
+  });
+  clientCompletions.sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+
+  // Activity log
+  const activities = [];
+  (DATA.activityLog || []).filter(a => a.clientId === clientId).forEach(a => {
+    activities.push({ timestamp: a.timestamp, type: a.type || 'note', text: a.note, id: a.id });
+  });
+  obs.forEach(ob => {
+    DATA.completions.filter(c => c.obligationId === ob.id).forEach(c => {
+      activities.push({
+        timestamp: c.completedAt,
+        type: 'completion',
+        text: `${ob.title} completed by ${c.completedBy}` + (c.notes ? ': ' + c.notes : ''),
+        id: c.id
+      });
+    });
+  });
+  activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  const container = document.getElementById('client-detail-content');
+  container.innerHTML = `
+    <div class="client-detail-header">
+      <div>
+        <button class="btn btn-outline btn-sm" onclick="switchView('clients')" style="margin-bottom:8px">&larr; Back to Clients</button>
+        <h2>${esc(client.name)}</h2>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+          <span class="badge ${comp.pct >= 80 ? 'badge-success' : comp.pct >= 50 ? 'badge-warning' : 'badge-danger'}">${comp.pct}% compliant this month</span>
+          <span style="font-size:0.85rem;color:var(--text-muted)">${comp.done}/${comp.total} obligations completed</span>
+        </div>
+        <div class="compliance-bar" style="width:200px;margin-top:8px"><div class="compliance-bar-fill" style="width:${comp.pct}%;background:${barColor}"></div></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm" onclick="openModal('client','${client.id}')">&#9998; Edit</button>
+        <button class="btn btn-outline btn-sm" onclick="generateClientReport('${client.id}')">&#128424; Report</button>
+      </div>
+    </div>
+
+    <div class="client-detail-info">
+      ${client.contractDetails ? `<div class="client-detail-info-item"><label>Contract</label><div>${esc(client.contractDetails)}</div></div>` : ''}
+      ${client.contactEmail ? `<div class="client-detail-info-item"><label>Email</label><div>${esc(client.contactEmail)}</div></div>` : ''}
+      ${client.contactPhone ? `<div class="client-detail-info-item"><label>Phone</label><div>${esc(client.contactPhone)}</div></div>` : ''}
+      ${client.region ? `<div class="client-detail-info-item"><label>Region</label><div>${esc(client.region)}</div></div>` : ''}
+      ${client.primaryTech ? `<div class="client-detail-info-item"><label>Primary Tech</label><div>${esc(client.primaryTech)}</div></div>` : ''}
+      ${client.secondaryTech ? `<div class="client-detail-info-item"><label>Secondary Tech</label><div>${esc(client.secondaryTech)}</div></div>` : ''}
+    </div>
+
+    <div class="client-detail-tabs">
+      <button class="client-detail-tab active" onclick="switchClientTab('obligations',this)">Obligations (${obs.length})</button>
+      <button class="client-detail-tab" onclick="switchClientTab('history',this)">Compliance History (${clientCompletions.length})</button>
+      <button class="client-detail-tab" onclick="switchClientTab('activity',this)">Activity Log (${activities.length})</button>
+      <button class="client-detail-tab" onclick="switchClientTab('mini-calendar',this)">Calendar</button>
+    </div>
+
+    <!-- Obligations Tab -->
+    <div class="client-detail-section active" id="cd-obligations">
+      ${overdueItems.length > 0 ? `<div class="panel" style="margin-bottom:16px;border-left:4px solid var(--danger)">
+        <div class="panel-header"><h2 style="color:var(--danger)">Overdue (${overdueItems.length})</h2></div>
+        <div class="panel-body"><table><thead><tr><th>Type</th><th>Obligation</th><th>Due Date</th><th>Days Overdue</th><th>Action</th></tr></thead><tbody>${
+          overdueItems.map(r => `<tr>
+            <td>${obTypeDot(r.ob.obligationType)}<span style="font-size:0.8rem">${esc(getObTypeInfo(r.ob.obligationType).label)}</span></td>
+            <td>${esc(r.ob.title)}</td>
+            <td>${formatDate(r.dueDate)}</td>
+            <td><span class="badge badge-danger">${r.daysOverdue} days</span></td>
+            <td><button class="btn btn-success btn-sm" onclick="openCompleteModal('${r.ob.id}','${r.dueDate}')">Complete</button></td>
+          </tr>`).join('')
+        }</tbody></table></div>
+      </div>` : ''}
+      <div class="panel">
+        <div class="panel-header"><h2>All Obligations</h2></div>
+        <div class="panel-body">
+          ${obs.length === 0 ? '<div class="empty-state"><p>No obligations for this client.</p></div>' : `
+          <table><thead><tr><th>Type</th><th>Title</th><th>Frequency</th><th>Next Due</th><th>Status</th><th>Actions</th></tr></thead><tbody>${
+            obs.map(ob => {
+              const nextDue = getNextDueDate(ob);
+              const nextComp = nextDue ? getCompletion(ob.id, nextDue) : null;
+              let status = '';
+              if (nextComp) status = '<span class="badge badge-success">Done</span>';
+              else if (nextDue && nextDue < today) status = '<span class="badge badge-danger">Overdue</span>';
+              else if (nextDue) status = '<span class="badge badge-info">Pending</span>';
+              else status = '<span class="badge badge-gray">N/A</span>';
+              return `<tr>
+                <td>${obTypeDot(ob.obligationType)}<span style="font-size:0.8rem">${esc(getObTypeInfo(ob.obligationType).label)}</span></td>
+                <td><strong>${esc(ob.title)}</strong>${ob.description ? '<br><small style="color:var(--gray-500)">' + esc(ob.description) + '</small>' : ''}</td>
+                <td><span class="badge badge-gray">${capitalize(ob.recurrence)}</span></td>
+                <td>${nextDue ? formatDate(nextDue) : 'N/A'}</td>
+                <td>${status}</td>
+                <td>
+                  ${nextDue && !nextComp ? `<button class="btn btn-success btn-sm" onclick="openCompleteModal('${ob.id}','${nextDue}')">Complete</button>` : ''}
+                  <button class="btn-icon" onclick="openModal('obligation','${ob.id}')" title="Edit">&#9998;</button>
+                </td>
+              </tr>`;
+            }).join('')
+          }</tbody></table>`}
+        </div>
+      </div>
+    </div>
+
+    <!-- Compliance History Tab -->
+    <div class="client-detail-section" id="cd-history">
+      <div class="panel">
+        <div class="panel-header"><h2>Completion History</h2></div>
+        <div class="panel-body">
+          ${clientCompletions.length === 0 ? '<div class="empty-state"><p>No completions recorded yet.</p></div>' : `
+          <table><thead><tr><th>Type</th><th>Obligation</th><th>Due Date</th><th>Completed By</th><th>Completed At</th><th>Notes</th></tr></thead><tbody>${
+            clientCompletions.map(c => `<tr>
+              <td>${obTypeDot(c.ob.obligationType)}</td>
+              <td>${esc(c.ob.title)}</td>
+              <td>${formatDate(c.dueDate)}</td>
+              <td>${esc(c.completedBy)}</td>
+              <td>${formatDateTime(c.completedAt)}</td>
+              <td style="max-width:200px;font-size:0.8rem;color:var(--text-secondary)">${esc(c.notes || '')}</td>
+            </tr>`).join('')
+          }</tbody></table>`}
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Log Tab -->
+    <div class="client-detail-section" id="cd-activity">
+      <div class="panel">
+        <div class="panel-header"><h2>Activity Log</h2></div>
+        <div class="panel-body padded">
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <input class="form-control" id="f-cd-activity-note" placeholder="Add a note..." style="flex:1">
+            <button class="btn btn-primary" onclick="saveCdActivityNote('${clientId}')">Add</button>
+          </div>
+          <div class="activity-log" style="max-height:400px">
+            ${activities.length === 0 ? '<div style="text-align:center;color:var(--text-muted);padding:20px">No activity yet</div>' :
+              activities.map(a => `<div class="activity-item">
+                <div class="activity-dot ${a.type}"></div>
+                <div style="flex:1">
+                  <div>${esc(a.text)}</div>
+                  <div style="font-size:0.75rem;color:var(--text-muted)">${formatDateTime(a.timestamp)}</div>
+                </div>
+                ${a.type === 'note' ? `<button class="btn-icon danger" onclick="deleteCdActivityNote('${a.id}','${clientId}')" title="Delete" style="font-size:0.75rem">&#10005;</button>` : ''}
+              </div>`).join('')
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mini Calendar Tab -->
+    <div class="client-detail-section" id="cd-mini-calendar">
+      <div class="panel">
+        <div class="panel-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn btn-outline btn-sm" onclick="changeClientDetailMonth(-1,'${clientId}')">&larr;</button>
+            <h2 id="cd-calendar-title"></h2>
+            <button class="btn btn-outline btn-sm" onclick="changeClientDetailMonth(1,'${clientId}')">&rarr;</button>
+          </div>
+        </div>
+        <div class="panel-body padded">
+          <div class="mini-calendar-grid" id="cd-calendar-grid"></div>
+          <div class="calendar-legend" id="cd-calendar-legend" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  renderClientDetailMiniCalendar(clientId);
+}
+
+function switchClientTab(tabId, btn) {
+  document.querySelectorAll('.client-detail-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.client-detail-section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('cd-' + tabId).classList.add('active');
+}
+
+function saveCdActivityNote(clientId) {
+  const input = document.getElementById('f-cd-activity-note');
+  const note = input.value.trim();
+  if (!note) return;
+  addActivityNote(clientId, note, 'note');
+  renderClientDetail(clientId);
+  showToast('Note added');
+}
+
+function deleteCdActivityNote(noteId, clientId) {
+  DATA.activityLog = (DATA.activityLog || []).filter(a => a.id !== noteId);
+  saveData(DATA);
+  renderClientDetail(clientId);
+}
+
+function changeClientDetailMonth(delta, clientId) {
+  clientDetailMonth += delta;
+  if (clientDetailMonth > 11) { clientDetailMonth = 0; clientDetailYear++; }
+  else if (clientDetailMonth < 0) { clientDetailMonth = 11; clientDetailYear--; }
+  renderClientDetailMiniCalendar(clientId);
+}
+
+function renderClientDetailMiniCalendar(clientId) {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const titleEl = document.getElementById('cd-calendar-title');
+  if (titleEl) titleEl.textContent = months[clientDetailMonth] + ' ' + clientDetailYear;
+
+  const firstDay = new Date(clientDetailYear, clientDetailMonth, 1).getDay();
+  const daysInMonth = new Date(clientDetailYear, clientDetailMonth + 1, 0).getDate();
+  const today = todayStr();
+
+  const monthStart = new Date(clientDetailYear, clientDetailMonth, 1);
+  const monthEnd = new Date(clientDetailYear, clientDetailMonth + 1, 0);
+  const instanceMap = {};
+  const typesUsed = new Set();
+
+  const obs = DATA.obligations.filter(o => o.clientId === clientId);
+  obs.forEach(ob => {
+    const instances = getInstancesInRange(ob, monthStart, monthEnd);
+    instances.forEach(d => {
+      if (!instanceMap[d]) instanceMap[d] = [];
+      const c = getCompletion(ob.id, d);
+      let status = 'pending';
+      if (c) status = 'completed';
+      else if (d < today) status = 'overdue';
+      instanceMap[d].push({ obligation: ob, status });
+      typesUsed.add(ob.obligationType || 'custom');
+    });
+  });
+
+  const grid = document.getElementById('cd-calendar-grid');
+  if (!grid) return;
+
+  let html = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<div class="day-header">${d}</div>`).join('');
+
+  const prevMonthDays = new Date(clientDetailYear, clientDetailMonth, 0).getDate();
+  for (let i = firstDay - 1; i >= 0; i--) {
+    html += `<div class="day-cell other-month"><div class="day-number">${prevMonthDays - i}</div></div>`;
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = dateStr(new Date(clientDetailYear, clientDetailMonth, d));
+    const isToday = ds === today;
+    const items = instanceMap[ds] || [];
+    html += `<div class="day-cell${isToday ? ' today' : ''}">
+      <div class="day-number" style="font-size:0.75rem">${d}</div>
+      ${items.slice(0, 2).map(i => {
+        const typeColor = getObTypeInfo(i.obligation.obligationType).color;
+        return `<div class="day-dot ${i.status}" style="border-left-color:${typeColor}">${esc(i.obligation.title)}</div>`;
+      }).join('')}${items.length > 2 ? `<div class="day-dot pending" style="font-size:0.6rem">+${items.length - 2} more</div>` : ''}
+    </div>`;
+  }
+
+  const totalCells = firstDay + daysInMonth;
+  const remaining = (7 - (totalCells % 7)) % 7;
+  for (let i = 1; i <= remaining; i++) {
+    html += `<div class="day-cell other-month"><div class="day-number">${i}</div></div>`;
+  }
+
+  grid.innerHTML = html;
+
+  // Legend for mini calendar
+  const legend = document.getElementById('cd-calendar-legend');
+  if (legend) {
+    let legendHtml = '<span class="calendar-legend-title">Types</span>';
+    typesUsed.forEach(typeKey => {
+      const info = getObTypeInfo(typeKey);
+      legendHtml += `<div class="calendar-legend-item"><div class="calendar-legend-swatch" style="background:${info.color}"></div>${esc(info.label)}</div>`;
+    });
+    legend.innerHTML = typesUsed.size > 0 ? legendHtml : '<span style="font-size:0.8rem;color:var(--text-muted)">No obligations this month</span>';
+  }
 }
 
 // ========================================================================
