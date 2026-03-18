@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dove IT - MSP Compliance Tracker</title>
+<title>Dove IT - MSP Obligations Tracker</title>
 <style>
 /* ========== RESET & BASE ========== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1660,7 +1660,7 @@ body.role-admin .admin-only-grid { display: grid !important; }
   <div class="login-card">
     <div class="login-header">
       <span class="login-logo-text"><span class="logo-dove">DOVE</span><span class="logo-it">IT</span></span>
-      <h1>Compliance Tracker</h1>
+      <h1>Obligations Tracker</h1>
       <p>Sign in to continue</p>
     </div>
     <div class="login-body">
@@ -1685,7 +1685,7 @@ body.role-admin .admin-only-grid { display: grid !important; }
 <nav class="navbar">
   <div class="navbar-brand">
     <span class="nav-logo-text"><span class="logo-dove">DOVE</span><span class="logo-it">IT</span></span>
-    <span class="brand-text">Compliance Tracker</span>
+    <span class="brand-text">Obligations Tracker</span>
   </div>
   <ul class="nav-tabs">
     <li><button class="nav-tab active" data-view="dashboard">Dashboard<span id="overdue-badge" class="nav-badge" style="display:none"></span></button></li>
@@ -3911,7 +3911,7 @@ function checkAndNotify() {
   if (lastNotif && (now - parseInt(lastNotif)) < 3600000) return; // Max once per hour
 
   if (overdue.length > 0) {
-    new Notification('MSP Compliance Tracker', {
+    new Notification('MSP Obligations Tracker', {
       body: `You have ${overdue.length} overdue obligation${overdue.length !== 1 ? 's' : ''} that need attention.`,
       icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⚠️</text></svg>'
     });
@@ -3920,7 +3920,7 @@ function checkAndNotify() {
 
   const urgentUpcoming = upcoming.filter(u => u.daysUntil === 0);
   if (urgentUpcoming.length > 0 && !lastNotif) {
-    new Notification('MSP Compliance Tracker', {
+    new Notification('MSP Obligations Tracker', {
       body: `${urgentUpcoming.length} obligation${urgentUpcoming.length !== 1 ? 's' : ''} due today!`,
       icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📋</text></svg>'
     });
@@ -4078,7 +4078,7 @@ function generateClientReport(clientId) {
   report.innerHTML = `
     <div class="report-header">
       <h1>Compliance Report - ${esc(client.name)}</h1>
-      <p>Generated on ${formatDate(todayStr())} | Dove IT MSP Compliance Tracker</p>
+      <p>Generated on ${formatDate(todayStr())} | Dove IT MSP Obligations Tracker</p>
     </div>
 
     <div class="report-section">
@@ -5307,7 +5307,7 @@ function exportOnsiteICS() {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Dove IT//MSP Compliance Tracker//EN',
+    'PRODID:-//Dove IT//MSP Obligations Tracker//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'X-WR-CALNAME:Dove IT Onsite Visits',
@@ -5355,7 +5355,7 @@ function exportClientICS(clientId) {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Dove IT//MSP Compliance Tracker//EN',
+    'PRODID:-//Dove IT//MSP Obligations Tracker//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${escICS(client.name)} - Obligations`,
@@ -5410,7 +5410,7 @@ function exportMyScheduleICS() {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Dove IT//MSP Compliance Tracker//EN',
+    'PRODID:-//Dove IT//MSP Obligations Tracker//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     `X-WR-CALNAME:My Schedule - ${escICS(techName)}`,
