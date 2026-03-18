@@ -1427,12 +1427,16 @@ tbody tr { transition: background 0.15s ease; }
 .user-dropdown-item.danger:hover { background: var(--danger-bg); }
 
 /* ========== ADMIN-ONLY MARKERS ========== */
-.admin-only { display: none; }
-body.role-admin .admin-only { display: initial; }
-body.role-admin .admin-only-flex { display: flex; }
-body.role-admin .admin-only-inline { display: inline; }
-body.role-admin .admin-only-block { display: block; }
-body.role-admin .admin-only-grid { display: grid; }
+.admin-only { display: none !important; }
+.admin-only-block { display: none !important; }
+.admin-only-flex { display: none !important; }
+.admin-only-inline { display: none !important; }
+.admin-only-grid { display: none !important; }
+body.role-admin .admin-only { display: initial !important; }
+body.role-admin .admin-only-flex { display: flex !important; }
+body.role-admin .admin-only-inline { display: inline !important; }
+body.role-admin .admin-only-block { display: block !important; }
+body.role-admin .admin-only-grid { display: grid !important; }
 
 /* ========== USER MANAGEMENT (Settings) ========== */
 .user-mgmt-grid {
@@ -1736,7 +1740,7 @@ body.role-admin .admin-only-grid { display: grid; }
 
   <!-- ========== SETTINGS ========== -->
   <div id="view-settings" class="view">
-    <div class="panel admin-only-block" style="display:none">
+    <div class="panel admin-only-block">
       <div class="panel-header"><h2>Team Members / Technicians</h2></div>
       <div class="panel-body padded">
         <p style="font-size:0.85rem;color:var(--gray-500);margin-bottom:12px">Manage the list of people who can be assigned to complete obligations.</p>
@@ -1747,7 +1751,7 @@ body.role-admin .admin-only-grid { display: grid; }
         <div id="tech-list"></div>
       </div>
     </div>
-    <div class="panel admin-only-block" style="display:none">
+    <div class="panel admin-only-block">
       <div class="panel-header"><h2>Data Management</h2></div>
       <div class="panel-body padded">
         <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -1794,7 +1798,7 @@ body.role-admin .admin-only-grid { display: grid; }
         </div>
       </div>
     </div>
-    <div class="panel admin-only-block" style="display:none">
+    <div class="panel admin-only-block">
       <div class="panel-header">
         <h2>User Accounts</h2>
         <button class="btn btn-primary btn-sm" onclick="openCreateUserModal()">+ Create User</button>
