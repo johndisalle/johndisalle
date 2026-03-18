@@ -1721,12 +1721,11 @@ body.role-admin .admin-only-grid { display: grid !important; }
   </div>
   <ul class="nav-tabs">
     <li><button class="nav-tab active" data-view="dashboard">Dashboard<span id="overdue-badge" class="nav-badge" style="display:none"></span></button></li>
-    <li><button class="nav-tab" data-view="quick-actions">Quick Actions</button></li>
-    <li><button class="nav-tab" data-view="clients">Clients</button></li>
-    <li><button class="nav-tab" data-view="obligations">Obligations</button></li>
-    <li><button class="nav-tab" data-view="week-preview">Week</button></li>
-    <li><button class="nav-tab" data-view="workload">Workload</button></li>
     <li><button class="nav-tab" data-view="calendar">Calendar</button></li>
+    <li><button class="nav-tab" data-view="week-preview">Week</button></li>
+    <li><button class="nav-tab" data-view="obligations">Obligations</button></li>
+    <li><button class="nav-tab" data-view="quick-actions">Quick Actions</button></li>
+    <li><button class="nav-tab" data-view="workload">Workload</button></li>
     <li><button class="nav-tab" data-view="settings">Settings</button></li>
   </ul>
   <div class="global-search">
@@ -1878,6 +1877,7 @@ body.role-admin .admin-only-grid { display: grid !important; }
       <button class="btn btn-outline btn-sm" onclick="changeMonth(1)">Next &rarr;</button>
       <button class="btn btn-outline btn-sm" onclick="goToToday()">Today</button>
       <button class="ics-export-btn" onclick="exportOnsiteICS()" style="margin-left:auto" title="Export onsite visits to your phone calendar">&#128197; Export Onsites (.ics)</button>
+      <button class="btn btn-primary btn-sm" onclick="switchView('obligations')" title="Add a new obligation">+ Add Obligation</button>
     </div>
     <div class="calendar-grid" id="calendar-grid"></div>
     <div class="calendar-legend" id="calendar-legend"></div>
